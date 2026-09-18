@@ -1,0 +1,143 @@
+---
+const navItems = [
+    { label: "Games", href: "/games" },
+    { label: "Dev Log", href: "/devlog" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" }
+];
+---
+
+<header class="site-header">
+    <div class="container header-inner">
+        <a
+            class="brand"
+            href="/"
+            aria-label="Syscall Studios Home"
+        >
+            <img
+                src="/brand/logo-full-horizontal-light.svg"
+                alt="Syscall Studios"
+                class="brand-logo"
+            />
+        </a>
+
+        <nav
+            class="nav"
+            aria-label="Main navigation"
+        >
+            {
+                navItems.map((item) => (
+                    <a href={item.href} class="nav-link">
+                        {item.label}
+                    </a>
+                ))
+            }
+        </nav>
+    </div>
+</header>
+
+<style>
+    .site-header {
+        position: relative;
+        z-index: 100;
+
+        border-bottom: 1px solid
+            rgb(216 216 216 / 12%);
+    }
+
+    .header-inner {
+        min-height: 88px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 2rem;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+    }
+
+    .brand-logo {
+        width: 230px;
+        height: auto;
+    }
+
+    .brand-name {
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .nav {
+        display: flex;
+        align-items: center;
+        gap: clamp(1rem, 3vw, 2.25rem);
+    }
+
+    .nav-link {
+        position: relative;
+
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+
+        color: var(--color-muted);
+
+        transition: color var(--transition-fast);
+    }
+
+    .nav-link::before,
+    .nav-link::after {
+        opacity: 0;
+
+        color: var(--color-accent);
+
+        transition:
+            opacity var(--transition-fast),
+            transform var(--transition-fast);
+    }
+
+    .nav-link::before {
+        content: "[";
+        margin-right: 0.25rem;
+        transform: translateX(4px);
+    }
+
+    .nav-link::after {
+        content: "]";
+        margin-left: 0.25rem;
+        transform: translateX(-4px);
+    }
+
+    .nav-link:hover {
+        color: var(--color-white);
+    }
+
+    .nav-link:hover::before,
+    .nav-link:hover::after {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    @media (max-width: 700px) {
+        .brand-name {
+            display: none;
+        }
+
+        .brand-logo {
+            width: 170px; 
+        }
+
+        .nav {
+            gap: 1rem;
+        }
+
+        .nav-link {
+            font-size: 0.78rem;
+        }
+    }
+</style>

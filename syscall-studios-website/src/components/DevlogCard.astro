@@ -1,0 +1,140 @@
+---
+interface Props {
+    id: string;
+    title: string;
+    description: string;
+    pubDate: Date;
+    tags?: string[];
+}
+
+const {
+    id,
+    title,
+    description,
+    pubDate,
+    tags = []
+} = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+});
+---
+
+<article class="devlog-card">
+    <a href={`/devlog/${id}/`} class="card-link">
+
+        <div class="card-meta">
+            <span>{formattedDate}</span>
+
+            {
+                tags.length > 0 && (
+                    <>
+                        <span class="separator">//</span>
+                        <span>{tags[0]}</span>
+                    </>
+                )
+            }
+        </div>
+
+        <div class="card-content">
+            <div>
+                <h2>{title}</h2>
+
+                <p>{description}</p>
+            </div>
+
+            <span class="arrow" aria-hidden="true">
+                →
+            </span>
+        </div>
+
+    </a>
+</article>
+
+<style>
+    .devlog-card {
+        border-top: 1px solid rgb(67 75 87 / 20%);
+    }
+
+    .devlog-card:last-child {
+        border-bottom: 1px solid rgb(67 75 87 / 20%);
+    }
+
+    .card-link {
+        display: block;
+
+        padding-block: 2.25rem;
+
+        transition:
+            padding-left var(--transition-normal),
+            color var(--transition-fast);
+    }
+
+    .card-link:hover {
+        padding-left: 1rem;
+    }
+
+    .card-meta {
+        display: flex;
+        gap: 0.75rem;
+
+        margin-bottom: 1rem;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+
+        text-transform: uppercase;
+    }
+
+    .separator {
+        color: var(--color-gray);
+    }
+
+    .card-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 3rem;
+    }
+
+    h2 {
+        margin-bottom: 0.75rem;
+
+        font-size: clamp(2rem, 4vw, 3.5rem);
+    }
+
+    p {
+        max-width: 650px;
+
+        margin-bottom: 0;
+
+        color: rgb(67 75 87 / 75%);
+    }
+
+    .arrow {
+        flex-shrink: 0;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 2rem;
+
+        transition: transform var(--transition-fast);
+    }
+
+    .card-link:hover .arrow {
+        transform: translateX(6px);
+    }
+
+    @media (max-width: 650px) {
+        .arrow {
+            display: none;
+        }
+    }
+</style>

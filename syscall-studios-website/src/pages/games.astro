@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import GameCard from "../components/GameCard.astro";
+
+import games from "../data/games.json";
+---
+
+<BaseLayout
+    title="Games"
+    description="Games from Syscall Studios."
+>
+    <section class="games-hero">
+        <div class="container">
+
+            <p class="eyebrow">
+                SYS::GAMES
+            </p>
+
+            <h1>
+                Things We're<br />
+                Building.
+            </h1>
+
+            <p class="intro">
+                Games built around curiosity, experimentation,
+                and the little details that make worlds feel real.
+            </p>
+
+        </div>
+    </section>
+
+
+    <section class="games-list">
+        <div class="container game-grid">
+
+            {
+                games.map((game) => (
+                    <GameCard {...game} />
+                ))
+            }
+
+        </div>
+    </section>
+
+</BaseLayout>
+
+<style>
+    .games-hero {
+        padding-top: clamp(6rem, 12vw, 11rem);
+        padding-bottom: clamp(4rem, 8vw, 7rem);
+    }
+
+    .games-hero h1 {
+        margin-bottom: 2rem;
+
+        font-size: clamp(4rem, 10vw, 8rem);
+    }
+
+    .intro {
+        max-width: 650px;
+
+        margin-bottom: 0;
+
+        color: var(--color-muted);
+
+        font-size: clamp(1.1rem, 2vw, 1.35rem);
+    }
+
+    .games-list {
+        padding-block: clamp(4rem, 8vw, 8rem);
+    }
+
+    .game-grid {
+        display: grid;
+        gap: 3rem;
+    }
+</style>

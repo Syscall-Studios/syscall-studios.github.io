@@ -1,0 +1,160 @@
+---
+import "../styles/global.css";
+
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+    noIndex?: boolean;
+}
+
+const {
+    title = "Syscall Studios",
+    description = "Independent games, thoughtfully built.",
+    image = "/brand/logo-full-horizontal-dark.svg",
+    noIndex = false
+} = Astro.props;
+
+const pageTitle =
+    title === "Syscall Studios"
+        ? title
+        : `${title} | Syscall Studios`;
+
+const canonicalURL = new URL(
+    Astro.url.pathname,
+    Astro.site ?? Astro.url
+);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        />
+
+        <meta
+            name="description"
+            content={description}
+        />
+
+        {
+            noIndex && (
+                <meta
+                    name="robots"
+                    content="noindex, nofollow"
+                />
+            )
+        }
+
+
+        <!-- Canonical -->
+
+        <link
+            rel="canonical"
+            href={canonicalURL}
+        />
+
+
+        <!-- Favicons -->
+
+        <link
+            rel="icon"
+            href="/favicon.svg"
+            type="image/svg+xml"
+        />
+
+        <link
+            rel="alternate icon"
+            href="/favicon.ico"
+            type="image/x-icon"
+        />
+
+
+        <!-- Page Title -->
+
+        <title>{pageTitle}</title>
+
+
+        <!-- OpenGraph -->
+
+        <meta
+            property="og:type"
+            content="website"
+        />
+
+        <meta
+            property="og:title"
+            content={pageTitle}
+        />
+
+        <meta
+            property="og:description"
+            content={description}
+        />
+
+        <meta
+            property="og:url"
+            content={canonicalURL}
+        />
+
+        <meta
+            property="og:site_name"
+            content="Syscall Studios"
+        />
+
+        <meta
+            property="og:image"
+            content={image}
+        />
+
+
+        <!-- Twitter / Social Cards -->
+
+        <meta
+            name="twitter:card"
+            content="summary_large_image"
+        />
+
+        <meta
+            name="twitter:title"
+            content={pageTitle}
+        />
+
+        <meta
+            name="twitter:description"
+            content={description}
+        />
+
+        <meta
+            name="twitter:image"
+            content={image}
+        />
+
+
+        <!-- Theme -->
+
+        <meta
+            name="theme-color"
+            content="#434b57"
+        />
+    </head>
+
+    <body>
+
+        <Header />
+
+        <main id="main-content">
+            <slot />
+        </main>
+
+        <Footer />
+
+    </body>
+</html>

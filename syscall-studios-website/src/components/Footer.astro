@@ -1,0 +1,78 @@
+---
+import site from "../data/site.json";
+---
+
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <img
+                src="/brand/logo-mark-light.svg"
+                alt=""
+            />
+
+            <span>Syscall Studios</span>
+        </div>
+
+        <div class="footer-meta">
+            <span>
+                © {new Date().getFullYear()} {site.studioName}
+            </span>
+
+            <span class="separator">//</span>
+
+            <span>Independent Game Studio</span>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .site-footer {
+        border-top: 1px solid rgb(216 216 216 / 12%);
+
+        padding-block: 2rem;
+    }
+
+    .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 2rem;
+    }
+
+    .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .footer-brand img {
+        width: 46px;
+    }
+
+    .footer-meta {
+        display: flex;
+        gap: 0.75rem;
+
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+    }
+
+    .separator {
+        color: var(--color-accent);
+    }
+
+    @media (max-width: 650px) {
+        .footer-inner,
+        .footer-meta {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>

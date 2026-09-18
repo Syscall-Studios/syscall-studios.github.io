@@ -1,0 +1,405 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import games from "../data/games.json";
+
+const featuredGame =
+	games.find((game) => game.featured) ?? games[0];
+---
+
+<BaseLayout>
+    <section class="hero">
+        <div class="container hero-inner">
+
+            <div class="hero-status">
+                <span class="status-dot"></span>
+                SYS::ONLINE
+            </div>
+
+            <img
+                class="hero-logo"
+                src="/brand/logo-full-horizontal-light.svg"
+                alt="Syscall Studios"
+            />
+
+            <p class="hero-tagline">
+                Independent games, thoughtfully built.
+            </p>
+
+            <a
+                href="/games"
+                class="button"
+            >
+                View Our Work
+            </a>
+
+        </div>
+    </section>
+
+
+    <section class="studio-status section">
+        <div class="container status-grid">
+
+            <div>
+                <p class="eyebrow">
+                    STATUS // ACTIVE
+                </p>
+
+                <h2>
+                    Something is compiling.
+                </h2>
+            </div>
+
+            <div class="status-copy">
+                <p>
+                    We're an independent game studio currently
+                    building our first title.
+                </p>
+
+                <p>
+                    We're keeping the details quiet for now.
+                    More soon.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+	<section class="project section">
+		<div class="container">
+
+			<p class="eyebrow">
+				SYS::GAMES
+			</p>
+
+			{
+				featuredGame && (
+					<a
+						href="/games"
+						class="project-card"
+					>
+						<div>
+
+							<span class="project-number">
+								{featuredGame.id.toUpperCase()}
+							</span>
+
+							<h2>
+								{featuredGame.title}
+							</h2>
+
+							<p>
+								{featuredGame.description}
+							</p>
+
+						</div>
+
+						<div class="project-side">
+
+							<span class="project-status">
+								{featuredGame.status}
+							</span>
+
+							{
+								!featuredGame.announced && (
+									<span class="classified">
+										[ CLASSIFIED ]
+									</span>
+								)
+							}
+
+						</div>
+					</a>
+				)
+			}
+
+		</div>
+	</section>
+
+
+
+    <section class="devlog section">
+        <div class="container">
+
+            <p class="eyebrow">
+                SYS::DEVLOG
+            </p>
+
+            <div class="section-heading">
+                <h2>From the Workbench</h2>
+
+                <a href="/devlog">
+                    View All →
+                </a>
+            </div>
+
+            <div class="empty-log">
+                <span>DEVLOG // 000</span>
+
+                <p>
+                    Development transmissions will appear here.
+                </p>
+            </div>
+
+        </div>
+    </section>
+</BaseLayout>
+
+<style>
+
+    /* HERO */
+
+    .hero {
+        min-height: calc(100vh - 89px);
+
+        display: flex;
+        align-items: center;
+
+        text-align: center;
+    }
+
+    .hero-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-status {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+
+        margin-bottom: 2rem;
+
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+
+        background: var(--color-accent);
+        border-radius: 50%;
+
+        box-shadow: 0 0 14px
+            rgb(121 83 245 / 80%);
+    }
+
+    .hero-logo {
+        width: min(420px, 75vw);
+    }
+
+    .hero-tagline {
+        margin-top: 2.25rem;
+        margin-bottom: 2rem;
+
+        color: var(--color-muted);
+
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
+    }
+
+
+    /* STATUS */
+
+    .studio-status {
+        background: var(--color-white);
+        color: var(--color-slate);
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(3rem, 8vw, 8rem);
+    }
+
+    .status-grid h2 {
+        max-width: 600px;
+
+        margin-bottom: 0;
+
+        font-size: clamp(3rem, 7vw, 6rem);
+    }
+
+    .status-copy {
+        align-self: end;
+
+        max-width: 500px;
+
+        font-size: 1.15rem;
+    }
+
+
+    /* PROJECT */
+
+	.project-card {
+		min-height: 340px;
+
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+
+		gap: 3rem;
+
+		margin-top: 2rem;
+		padding: clamp(2rem, 5vw, 4rem);
+
+		border: 1px solid
+			rgb(216 216 216 / 18%);
+
+		background:
+			linear-gradient(
+				135deg,
+				rgb(121 83 245 / 10%),
+				transparent 55%
+			);
+
+		transition:
+			border-color var(--transition-normal),
+			transform var(--transition-normal),
+			background var(--transition-normal);
+	}
+
+	.project-card:hover {
+		border-color: rgb(121 83 245 / 60%);
+
+		transform: translateY(-4px);
+
+		background:
+			linear-gradient(
+				135deg,
+				rgb(121 83 245 / 18%),
+				transparent 60%
+			);
+	}
+
+	.project-number,
+	.project-status,
+	.classified {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.project-number {
+		color: var(--color-accent);
+	}
+
+	.project-card h2 {
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+
+		font-size: clamp(3rem, 7vw, 6rem);
+	}
+
+	.project-card p {
+		max-width: 580px;
+
+		margin-bottom: 0;
+
+		color: var(--color-muted);
+	}
+
+	.project-side {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.75rem;
+
+		flex-shrink: 0;
+	}
+
+	.project-status {
+		color: var(--color-muted);
+	}
+
+	.classified {
+		color: var(--color-accent);
+	}
+
+
+    /* DEVLOG */
+
+    .devlog {
+        background: var(--color-white);
+        color: var(--color-slate);
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+
+        gap: 2rem;
+
+        margin-bottom: 3rem;
+    }
+
+    .section-heading h2 {
+        margin-bottom: 0;
+
+        font-size: clamp(3rem, 6vw, 5rem);
+    }
+
+    .section-heading a {
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+    }
+
+    .empty-log {
+        padding-block: 2rem;
+
+        border-top: 1px solid var(--color-gray);
+        border-bottom: 1px solid var(--color-gray);
+    }
+
+    .empty-log span {
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+    }
+
+    .empty-log p {
+        margin-top: 0.75rem;
+        margin-bottom: 0;
+
+        font-size: 1.15rem;
+    }
+
+
+    /* RESPONSIVE */
+
+    @media (max-width: 750px) {
+
+        .status-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .project-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4rem;
+        }
+
+        .section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+		    .project-card {
+        flex-direction: column;
+        align-items: flex-start;
+		}
+
+		.project-side {
+			align-items: flex-start;
+		}
+    }
+
+</style>

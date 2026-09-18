@@ -1,0 +1,16 @@
+[
+  {
+    "id": "project-01",
+    "title": "Unannounced Project",
+    "status": "In Development",
+    "description": "Our first game is currently in development. We're keeping the details quiet for now.",
+    "announced": false,
+    "featured": true,
+    "image": null,
+    "release": null,
+    "links": {
+      "website": null,
+      "steam": null
+    }
+  }
+]

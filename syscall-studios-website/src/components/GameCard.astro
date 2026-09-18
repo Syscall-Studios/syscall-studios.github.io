@@ -1,0 +1,255 @@
+---
+interface Props {
+    id: string;
+    title: string;
+    status: string;
+    description: string;
+    announced: boolean;
+    image?: string | null;
+    release?: string | null;
+
+    links?: {
+        website?: string | null;
+        steam?: string | null;
+    };
+}
+
+const {
+    id,
+    title,
+    status,
+    description,
+    announced,
+    image = null,
+    release = null,
+    links = {}
+} = Astro.props;
+---
+
+<article class="game-card">
+
+    {
+        image ? (
+            <div class="game-image">
+                <img
+                    src={image}
+                    alt=""
+                />
+            </div>
+        ) : (
+            <div class="game-placeholder">
+                <span class="project-id">
+                    {id.toUpperCase()}
+                </span>
+
+                <span class="classified">
+                    [ CLASSIFIED ]
+                </span>
+            </div>
+        )
+    }
+
+    <div class="game-content">
+
+        <div class="game-meta">
+            <span>{status}</span>
+
+            {
+                release && (
+                    <>
+                        <span class="separator">//</span>
+                        <span>{release}</span>
+                    </>
+                )
+            }
+        </div>
+
+        <h2>{title}</h2>
+
+        <p>
+            {description}
+        </p>
+
+        {
+            announced && (
+                <div class="game-links">
+
+                    {
+                        links.website && (
+                            <a
+                                href={links.website}
+                                class="button"
+                            >
+                                Website
+                            </a>
+                        )
+                    }
+
+                    {
+                        links.steam && (
+                            <a
+                                href={links.steam}
+                                class="button"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Steam
+                            </a>
+                        )
+                    }
+
+                </div>
+            )
+        }
+
+    </div>
+
+</article>
+
+<style>
+    .game-card {
+        overflow: hidden;
+
+        border: 1px solid rgb(216 216 216 / 18%);
+    }
+
+
+    /* Visual Area */
+
+    .game-image,
+    .game-placeholder {
+        aspect-ratio: 16 / 7;
+    }
+
+    .game-image img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+    }
+
+    .game-placeholder {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 300px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgb(121 83 245 / 16%),
+                transparent 55%
+            ),
+            var(--color-slate);
+    }
+
+    .game-placeholder::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+
+        opacity: 0.09;
+
+        background-image:
+            linear-gradient(
+                rgb(247 247 248 / 30%) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgb(247 247 248 / 30%) 1px,
+                transparent 1px
+            );
+
+        background-size: 32px 32px;
+    }
+
+    .project-id {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+    }
+
+    .classified {
+        position: relative;
+        z-index: 1;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        letter-spacing: 0.12em;
+    }
+
+
+    /* Content */
+
+    .game-content {
+        padding: clamp(2rem, 5vw, 4rem);
+
+        background: var(--color-white);
+        color: var(--color-slate);
+    }
+
+    .game-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        margin-bottom: 1.25rem;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .separator {
+        color: var(--color-gray);
+    }
+
+    h2 {
+        margin-bottom: 1rem;
+
+        font-size: clamp(3rem, 7vw, 6rem);
+    }
+
+    p {
+        max-width: 650px;
+
+        margin-bottom: 0;
+
+        color: rgb(67 75 87 / 78%);
+        font-size: 1.1rem;
+    }
+
+    .game-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        margin-top: 2rem;
+    }
+
+    .game-links .button {
+        color: var(--color-slate);
+        border-color: var(--color-slate);
+    }
+
+    .game-links .button:hover {
+        color: var(--color-white);
+        border-color: var(--color-purple);
+    }
+</style>
