@@ -1,24 +1,56 @@
 ---
 import site from "../data/site.json";
+import navItems from "../data/nav.json";
+import { socialLinks } from "../lib/socials";
 ---
 
 <footer class="site-footer">
     <div class="container footer-inner">
-        <div class="footer-brand">
-            <img
-                src="/brand/logo-mark-light.svg"
-                alt=""
-            />
+        <div class="footer-main">
+            <a class="footer-brand" href="/" aria-label="Syscall Studios Home">
+                <img
+                    src="/brand/logo-mark-light.svg"
+                    alt=""
+                />
 
-            <span>Syscall Studios</span>
+                <span>Syscall Studios</span>
+            </a>
+
+            <nav class="footer-nav" aria-label="Footer navigation">
+                {
+                    navItems.map((item) => (
+                        <a href={item.href}>{item.label}</a>
+                    ))
+                }
+                <a href="/rss.xml">RSS</a>
+            </nav>
         </div>
+
+        {
+            socialLinks.length > 0 && (
+                <nav class="footer-socials" aria-label="Social links">
+                    {
+                        socialLinks.map((social) => (
+                            <a
+                                href={social.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${social.label} (opens in a new tab)`}
+                            >
+                                {social.label}
+                            </a>
+                        ))
+                    }
+                </nav>
+            )
+        }
 
         <div class="footer-meta">
             <span>
                 © {new Date().getFullYear()} {site.studioName}
             </span>
 
-            <span class="separator">//</span>
+            <span class="separator">|</span>
 
             <span>Independent Game Studio</span>
         </div>
@@ -29,10 +61,15 @@ import site from "../data/site.json";
     .site-footer {
         border-top: 1px solid rgb(216 216 216 / 12%);
 
-        padding-block: 2rem;
+        padding-block: clamp(2rem, 5vw, 3.5rem);
     }
 
     .footer-inner {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .footer-main {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -45,23 +82,53 @@ import site from "../data/site.json";
         align-items: center;
         gap: 0.75rem;
 
-        font-family: var(--font-display);
+        font-family: var(--font-brand);
+        font-size: 1.3rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
     .footer-brand img {
-        width: 46px;
+        width: 50px;
+    }
+
+    .footer-nav,
+    .footer-socials {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem clamp(1rem, 3vw, 2rem);
+
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 1rem;
+    }
+
+    .footer-nav {
+        justify-content: flex-end;
+    }
+
+    .footer-nav a,
+    .footer-socials a {
+        transition: color var(--transition-fast);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible,
+    .footer-socials a:hover,
+    .footer-socials a:focus-visible {
+        color: var(--color-white);
     }
 
     .footer-meta {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.75rem;
 
         color: var(--color-muted);
 
         font-family: var(--font-mono);
-        font-size: 0.75rem;
+        font-size: 0.9rem;
     }
 
     .separator {
@@ -69,10 +136,23 @@ import site from "../data/site.json";
     }
 
     @media (max-width: 650px) {
-        .footer-inner,
+        .footer-main,
         .footer-meta {
             align-items: flex-start;
             flex-direction: column;
+        }
+
+        .footer-nav {
+            justify-content: flex-start;
+            gap: 0.25rem 1.25rem;
+        }
+
+        .footer-nav a,
+        .footer-socials a {
+            min-height: 44px;
+
+            display: inline-flex;
+            align-items: center;
         }
     }
 </style>

@@ -1,0 +1,112 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+    title="Page Not Found"
+    description="The requested page could not be found."
+    noIndex={true}
+>
+    <section class="error-page">
+        <div class="container error-inner">
+            <p class="eyebrow">ERROR | 404</p>
+
+            <div class="error-code" aria-hidden="true">
+                <span>4</span>
+                <img src="/brand/logo-mark-light.svg" alt="" />
+                <span>4</span>
+            </div>
+
+            <h1>SEGMENTATION FAULT</h1>
+
+            <p class="error-copy">
+                The requested page could not be found.
+                It may have moved, or it may never have compiled.
+            </p>
+
+            <a href="/" class="button">Return Home</a>
+        </div>
+    </section>
+</BaseLayout>
+
+<style>
+    .error-page {
+        position: relative;
+        overflow: hidden;
+
+        min-height: calc(100svh - 89px);
+
+        display: grid;
+        place-items: center;
+
+        padding-block: clamp(5rem, 10vw, 8rem);
+        text-align: center;
+    }
+
+    .error-page::before {
+        position: absolute;
+        inset: 0;
+
+        background:
+            radial-gradient(
+                circle at center,
+                rgb(121 83 245 / 16%),
+                transparent 40%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .error-inner {
+        position: relative;
+        z-index: 1;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .error-code {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.5rem, 2vw, 1.25rem);
+
+        color: rgb(216 216 216 / 18%);
+
+        font-family: var(--font-brand);
+        font-size: clamp(4.5rem, 22vw, 16rem);
+        line-height: 0.75;
+        user-select: none;
+    }
+
+    .error-code img {
+        width: clamp(3.25rem, 13vw, 10rem);
+    }
+
+    h1 {
+        margin-top: clamp(2rem, 5vw, 4rem);
+        margin-bottom: 1.5rem;
+
+        font-family: var(--font-mono);
+        font-size: clamp(2rem, 6vw, 4rem);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .error-copy {
+        max-width: 520px;
+
+        margin-bottom: 2rem;
+
+        color: var(--color-muted);
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 700px) {
+        .error-page {
+            min-height: calc(100svh - 73px);
+        }
+    }
+</style>

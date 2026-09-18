@@ -1,9 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import DevlogCard from "../components/DevlogCard.astro";
 import games from "../data/games.json";
+import site from "../data/site.json";
+import { getPublishedPosts } from "../lib/devlog";
 
 const featuredGame =
 	games.find((game) => game.featured) ?? games[0];
+
+const latestPosts = (await getPublishedPosts()).slice(0, 2);
 ---
 
 <BaseLayout>
@@ -15,14 +20,17 @@ const featuredGame =
                 SYS::ONLINE
             </div>
 
-            <img
-                class="hero-logo"
-                src="/brand/logo-full-horizontal-light.svg"
-                alt="Syscall Studios"
-            />
+            <h1 class="hero-title">
+                <span class="visually-hidden">Syscall Studios</span>
+                <img
+                    class="hero-logo"
+                    src="/brand/logo-full-box-light.svg"
+                    alt=""
+                />
+            </h1>
 
             <p class="hero-tagline">
-                Independent games, thoughtfully built.
+                {site.tagline}
             </p>
 
             <a
@@ -41,7 +49,7 @@ const featuredGame =
 
             <div>
                 <p class="eyebrow">
-                    STATUS // ACTIVE
+                    STATUS | ACTIVE
                 </p>
 
                 <h2>
@@ -133,13 +141,26 @@ const featuredGame =
                 </a>
             </div>
 
-            <div class="empty-log">
-                <span>DEVLOG // 000</span>
-
-                <p>
-                    Development transmissions will appear here.
-                </p>
-            </div>
+            {
+                latestPosts.length > 0 ? (
+                    <div class="devlog-list">
+                        {latestPosts.map((post) => (
+                            <DevlogCard
+                                id={post.id}
+                                title={post.data.title}
+                                description={post.data.description}
+                                pubDate={post.data.pubDate}
+                                tags={post.data.tags}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div class="empty-log">
+                        <span>DEVLOG | 000</span>
+                        <p>Development transmissions will appear here.</p>
+                    </div>
+                )
+            }
 
         </div>
     </section>
@@ -150,6 +171,9 @@ const featuredGame =
     /* HERO */
 
     .hero {
+        position: relative;
+        overflow: hidden;
+
         min-height: calc(100vh - 89px);
 
         display: flex;
@@ -158,7 +182,36 @@ const featuredGame =
         text-align: center;
     }
 
+    .hero::before {
+        position: absolute;
+        inset: 0;
+
+        background:
+            radial-gradient(
+                circle at 50% 45%,
+                rgb(121 83 245 / 14%),
+                transparent 36%
+            ),
+            linear-gradient(
+                rgb(216 216 216 / 3%) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgb(216 216 216 / 3%) 1px,
+                transparent 1px
+            );
+        background-size: auto, 64px 64px, 64px 64px;
+
+        content: "";
+        mask-image: linear-gradient(to bottom, black, transparent 90%);
+        pointer-events: none;
+    }
+
     .hero-inner {
+        position: relative;
+        z-index: 1;
+
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -187,10 +240,16 @@ const featuredGame =
 
         box-shadow: 0 0 14px
             rgb(121 83 245 / 80%);
+
+        animation: status-pulse 2.8s ease-in-out infinite;
+    }
+
+    .hero-title {
+        margin: 0;
     }
 
     .hero-logo {
-        width: min(420px, 75vw);
+        width: min(360px, 68vw);
     }
 
     .hero-tagline {
@@ -221,7 +280,7 @@ const featuredGame =
 
         margin-bottom: 0;
 
-        font-size: clamp(3rem, 7vw, 6rem);
+        font-size: clamp(2.5rem, 5.5vw, 4.5rem);
     }
 
     .status-copy {
@@ -236,6 +295,9 @@ const featuredGame =
     /* PROJECT */
 
 	.project-card {
+        position: relative;
+        overflow: hidden;
+
 		min-height: 340px;
 
 		display: flex;
@@ -263,7 +325,26 @@ const featuredGame =
 			background var(--transition-normal);
 	}
 
-	.project-card:hover {
+    .project-card::after {
+        position: absolute;
+        right: -5rem;
+        bottom: -7rem;
+
+        width: 22rem;
+        height: 22rem;
+
+        border: 1px solid rgb(121 83 245 / 18%);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 3rem rgb(121 83 245 / 5%),
+            0 0 0 6rem rgb(121 83 245 / 3%);
+
+        content: "";
+        pointer-events: none;
+    }
+
+	.project-card:hover,
+    .project-card:focus-visible {
 		border-color: rgb(121 83 245 / 60%);
 
 		transform: translateY(-4px);
@@ -293,7 +374,7 @@ const featuredGame =
 		margin-top: 1rem;
 		margin-bottom: 1rem;
 
-		font-size: clamp(3rem, 7vw, 6rem);
+		font-size: clamp(2.25rem, 4.5vw, 3.75rem);
 	}
 
 	.project-card p {
@@ -342,7 +423,7 @@ const featuredGame =
     .section-heading h2 {
         margin-bottom: 0;
 
-        font-size: clamp(3rem, 6vw, 5rem);
+        font-size: clamp(2rem, 4vw, 3.25rem);
     }
 
     .section-heading a {
@@ -372,30 +453,37 @@ const featuredGame =
         font-size: 1.15rem;
     }
 
+    @keyframes status-pulse {
+        50% {
+            opacity: 0.55;
+            transform: scale(0.82);
+        }
+    }
+
 
     /* RESPONSIVE */
 
     @media (max-width: 750px) {
+        .hero {
+            min-height: calc(100svh - 73px);
+        }
 
         .status-grid {
             grid-template-columns: 1fr;
         }
 
         .project-card {
+            min-height: 0;
+
             flex-direction: column;
             align-items: flex-start;
-            gap: 4rem;
+            gap: 2.5rem;
         }
 
         .section-heading {
             align-items: flex-start;
             flex-direction: column;
         }
-
-		    .project-card {
-        flex-direction: column;
-        align-items: flex-start;
-		}
 
 		.project-side {
 			align-items: flex-start;

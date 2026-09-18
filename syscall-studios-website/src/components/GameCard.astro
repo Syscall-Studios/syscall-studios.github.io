@@ -57,7 +57,7 @@ const {
             {
                 release && (
                     <>
-                        <span class="separator">//</span>
+                        <span class="separator">|</span>
                         <span>{release}</span>
                     </>
                 )
@@ -116,8 +116,7 @@ const {
 
     /* Visual Area */
 
-    .game-image,
-    .game-placeholder {
+    .game-image {
         aspect-ratio: 16 / 7;
     }
 
@@ -131,11 +130,12 @@ const {
     .game-placeholder {
         position: relative;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 1.5rem;
 
-        min-height: 300px;
+        min-height: clamp(240px, 36vw, 400px);
+        padding: clamp(1.25rem, 4vw, 1.75rem);
 
         background:
             linear-gradient(
@@ -169,14 +169,15 @@ const {
     }
 
     .project-id {
-        position: absolute;
-        top: 1.5rem;
-        left: 1.5rem;
+        position: relative;
+        z-index: 1;
+
+        justify-self: start;
 
         color: var(--color-muted);
 
         font-family: var(--font-mono);
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         letter-spacing: 0.1em;
     }
 
@@ -184,11 +185,17 @@ const {
         position: relative;
         z-index: 1;
 
+        place-self: center;
+
+        max-width: 100%;
+
         color: var(--color-purple);
 
         font-family: var(--font-mono);
-        font-size: clamp(1rem, 2vw, 1.3rem);
-        letter-spacing: 0.12em;
+        font-size: clamp(1.05rem, 2vw, 1.3rem);
+        letter-spacing: 0.1em;
+        text-align: center;
+        text-wrap: balance;
     }
 
 
@@ -223,7 +230,7 @@ const {
     h2 {
         margin-bottom: 1rem;
 
-        font-size: clamp(3rem, 7vw, 6rem);
+        font-size: clamp(2.25rem, 4.5vw, 3.75rem);
     }
 
     p {

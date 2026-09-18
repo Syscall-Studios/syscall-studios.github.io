@@ -15,11 +15,9 @@ const {
     tags = []
 } = Astro.props;
 
-const formattedDate = pubDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit"
-});
+import { formatDate } from "../lib/format-date";
+
+const formattedDate = formatDate(pubDate);
 ---
 
 <article class="devlog-card">
@@ -31,7 +29,7 @@ const formattedDate = pubDate.toLocaleDateString("en-US", {
             {
                 tags.length > 0 && (
                     <>
-                        <span class="separator">//</span>
+                        <span class="separator">|</span>
                         <span>{tags[0]}</span>
                     </>
                 )
@@ -72,7 +70,8 @@ const formattedDate = pubDate.toLocaleDateString("en-US", {
             color var(--transition-fast);
     }
 
-    .card-link:hover {
+    .card-link:hover,
+    .card-link:focus-visible {
         padding-left: 1rem;
     }
 
@@ -106,7 +105,7 @@ const formattedDate = pubDate.toLocaleDateString("en-US", {
     h2 {
         margin-bottom: 0.75rem;
 
-        font-size: clamp(2rem, 4vw, 3.5rem);
+        font-size: clamp(1.75rem, 3.25vw, 2.75rem);
     }
 
     p {
@@ -128,13 +127,14 @@ const formattedDate = pubDate.toLocaleDateString("en-US", {
         transition: transform var(--transition-fast);
     }
 
-    .card-link:hover .arrow {
+    .card-link:hover .arrow,
+    .card-link:focus-visible .arrow {
         transform: translateX(6px);
     }
 
     @media (max-width: 650px) {
         .arrow {
-            display: none;
+            font-size: 1.5rem;
         }
     }
 </style>

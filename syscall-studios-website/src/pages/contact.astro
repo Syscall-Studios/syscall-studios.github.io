@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import site from "../data/site.json";
+import { socialLinks } from "../lib/socials";
 
 const contacts = [
     {
@@ -9,13 +10,6 @@ const contacts = [
         email: site.emails.business
     }
 ];
-
-const socials = Object.entries(site.socials)
-    .filter(([, url]) => url !== null)
-    .map(([name, url]) => ({
-        name,
-        url
-    }));
 ---
 
 <BaseLayout
@@ -40,8 +34,8 @@ const socials = Object.entries(site.socials)
             </h1>
 
             <p class="hero-copy">
-                Questions, press inquiries, business stuff,
-                or just want to talk games? We'd love to hear from you.
+                Questions, partnerships, or just want to talk games?
+                We'd love to hear from you.
             </p>
 
         </div>
@@ -106,7 +100,7 @@ const socials = Object.entries(site.socials)
          ===================================================== -->
 
     {
-        socials.length > 0 && (
+        socialLinks.length > 0 && (
             <section class="social-section section">
                 <div class="container social-grid">
 
@@ -124,14 +118,15 @@ const socials = Object.entries(site.socials)
                     <div class="social-links">
 
                         {
-                            socials.map((social) => (
+                            socialLinks.map((social) => (
                                 <a
                                     href={social.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    aria-label={`${social.label} (opens in a new tab)`}
                                 >
                                     <span>
-                                        {social.name.toUpperCase()}
+                                        {social.label.toUpperCase()}
                                     </span>
 
                                     <span aria-hidden="true">
@@ -197,7 +192,7 @@ const socials = Object.entries(site.socials)
     .contact-hero h1 {
         margin-bottom: 2.5rem;
 
-        font-size: clamp(5rem, 13vw, 11rem);
+        font-size: clamp(3.5rem, 10vw, 8rem);
     }
 
     .hero-copy {
@@ -246,7 +241,8 @@ const socials = Object.entries(site.socials)
             background var(--transition-normal);
     }
 
-    .contact-row:hover {
+    .contact-row:hover,
+    .contact-row:focus-visible {
         padding-left: 1rem;
 
         background:
@@ -287,6 +283,7 @@ const socials = Object.entries(site.socials)
         font-family: var(--font-body);
         font-size: clamp(1.6rem, 4vw, 3.25rem);
         font-weight: 600;
+        letter-spacing: normal;
 
         word-break: break-word;
     }
@@ -306,7 +303,8 @@ const socials = Object.entries(site.socials)
         transition: transform var(--transition-fast);
     }
 
-    .contact-row:hover .contact-arrow {
+    .contact-row:hover .contact-arrow,
+    .contact-row:focus-visible .contact-arrow {
         transform: translateX(7px);
     }
 
@@ -363,7 +361,8 @@ const socials = Object.entries(site.socials)
             padding-left var(--transition-fast);
     }
 
-    .social-links a:hover {
+    .social-links a:hover,
+    .social-links a:focus-visible {
         padding-left: 0.75rem;
 
         color: var(--color-white);

@@ -1,10 +1,7 @@
 ---
-const navItems = [
-    { label: "Games", href: "/games" },
-    { label: "Dev Log", href: "/devlog" },
-    { label: "About", href: "/about" },
-    { label: "Contact", href: "/contact" }
-];
+import navItems from "../data/nav.json";
+
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header">
@@ -16,33 +13,93 @@ const navItems = [
         >
             <img
                 src="/brand/logo-full-horizontal-light.svg"
-                alt="Syscall Studios"
+                alt=""
                 class="brand-logo"
             />
         </a>
 
+        <button
+            class="menu-toggle"
+            type="button"
+            aria-controls="main-navigation"
+            aria-expanded="false"
+            aria-label="Menu"
+        >
+            <span class="menu-label">Menu</span>
+        </button>
+
         <nav
             class="nav"
+            id="main-navigation"
             aria-label="Main navigation"
+            data-open="false"
         >
             {
-                navItems.map((item) => (
-                    <a href={item.href} class="nav-link">
-                        {item.label}
-                    </a>
-                ))
+                navItems.map((item) => {
+                    const isCurrent =
+                        currentPath === item.href ||
+                        currentPath.startsWith(`${item.href}/`);
+
+                    return (
+                        <a
+                            href={item.href}
+                            class="nav-link"
+                            aria-current={isCurrent ? "page" : undefined}
+                        >
+                            {item.label}
+                        </a>
+                    );
+                })
             }
         </nav>
     </div>
 </header>
 
+<script>
+    document.documentElement.classList.add("js");
+
+    const header = document.querySelector(".site-header");
+    const toggle = header?.querySelector(".menu-toggle");
+    const nav = header?.querySelector(".nav");
+    const label = header?.querySelector(".menu-label");
+
+    if (
+        toggle instanceof HTMLButtonElement &&
+        nav instanceof HTMLElement &&
+        label instanceof HTMLElement
+    ) {
+        const setOpen = (open: boolean) => {
+            toggle.setAttribute("aria-expanded", String(open));
+            toggle.setAttribute("aria-label", open ? "Close menu" : "Menu");
+            nav.dataset.open = String(open);
+            label.textContent = open ? "Close" : "Menu";
+        };
+
+        toggle.addEventListener("click", () => {
+            setOpen(toggle.getAttribute("aria-expanded") !== "true");
+        });
+
+        nav.addEventListener("click", () => setOpen(false));
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                setOpen(false);
+                toggle.focus();
+            }
+        });
+    }
+</script>
+
 <style>
     .site-header {
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
 
+        background: rgb(67 75 87 / 92%);
         border-bottom: 1px solid
             rgb(216 216 216 / 12%);
+        backdrop-filter: blur(16px);
     }
 
     .header-inner {
@@ -65,25 +122,21 @@ const navItems = [
         height: auto;
     }
 
-    .brand-name {
-        font-family: var(--font-body);
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-    }
-
     .nav {
         display: flex;
         align-items: center;
         gap: clamp(1rem, 3vw, 2.25rem);
     }
 
+    .menu-toggle {
+        display: none;
+    }
+
     .nav-link {
         position: relative;
 
         font-family: var(--font-mono);
-        font-size: 0.9rem;
+        font-size: 1.05rem;
 
         color: var(--color-muted);
 
@@ -113,31 +166,99 @@ const navItems = [
         transform: translateX(-4px);
     }
 
-    .nav-link:hover {
+    .nav-link:hover,
+    .nav-link:focus-visible,
+    .nav-link[aria-current="page"] {
         color: var(--color-white);
     }
 
     .nav-link:hover::before,
-    .nav-link:hover::after {
+    .nav-link:hover::after,
+    .nav-link:focus-visible::before,
+    .nav-link:focus-visible::after,
+    .nav-link[aria-current="page"]::before,
+    .nav-link[aria-current="page"]::after {
         opacity: 1;
         transform: translateX(0);
     }
 
     @media (max-width: 700px) {
-        .brand-name {
-            display: none;
+        .header-inner {
+            position: relative;
+            min-height: 72px;
         }
 
         .brand-logo {
-            width: 170px; 
+            width: 176px;
         }
 
         .nav {
-            gap: 1rem;
+            position: absolute;
+            top: calc(100% + 1px);
+            right: var(--page-padding);
+            left: var(--page-padding);
+
+            display: grid;
+            gap: 0;
+
+            padding: 0.65rem;
+
+            background: var(--color-slate);
+            border: 1px solid rgb(216 216 216 / 18%);
+            box-shadow: 0 1.5rem 4rem rgb(24 28 34 / 30%);
         }
 
         .nav-link {
-            font-size: 0.78rem;
+            min-height: 52px;
+
+            display: flex;
+            align-items: center;
+
+            padding-inline: 0.75rem;
+
+            font-size: 1.1rem;
+        }
+
+        :global(html.js) .menu-toggle {
+            display: inline-flex;
+            align-items: center;
+
+            min-height: 44px;
+            padding: 0.55rem 0.75rem;
+
+            border: 1px solid rgb(216 216 216 / 35%);
+            background: transparent;
+            color: var(--color-white);
+
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .menu-label::before {
+            content: "[ ";
+            color: var(--color-accent);
+        }
+
+        .menu-label::after {
+            content: " ]";
+            color: var(--color-accent);
+        }
+
+        :global(html.js) .nav[data-open="false"] {
+            display: none;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .header-inner {
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 140px;
         }
     }
 </style>
