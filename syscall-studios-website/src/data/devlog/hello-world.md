@@ -1,7 +1,7 @@
 ---
 title: "Hello, World"
-description: "A quick introduction to Syscall Studios, why we're here, and what we want this Dev Log to become."
-pubDate: 2026-09-18
+description: "Welcome to Syscall Studios. We're building our first game, our studio, and a place to document everything we learn along the way."
+pubDate: 2026-09-04T12:00:00Z
 tags:
   - Studio
   - Development
@@ -11,92 +11,150 @@ draft: false
 
 Hello, world.
 
-We're **Syscall Studios**, a small independent game studio currently working on our first title.
+We're **Syscall Studios**, a small independent game studio currently building our first game.
 
-That's about as specific as we're going to get about the game itself for now.
+And, at least for now, that's about as much as we're going to tell you about the game itself.
 
-We're still keeping Project 01 pretty close to the chest while we build out the foundation, figure out what works, break things, rebuild them, and generally turn a collection of ideas into something that actually feels like a game.
+It's called Project 01 around here, it's in active development, and it will stay `[ CLASSIFIED ]` until we think there's something genuinely worth showing.
 
-But we didn't want that to mean total radio silence.
+But the game isn't the only thing we're building.
 
-So, this Dev Log exists.
+We're also building a studio.
 
-## Why write about development?
+And we figured that part didn't need to happen entirely behind closed doors.
 
-Game development is weird.
+## So, hi.
 
-A finished game can look incredibly deliberate from the outside, but the process of making one is usually much messier.
+Syscall Studios is interested in games built around curiosity, systems, interaction, and the satisfaction of understanding how something works.
 
-Features get rewritten.
+We like details that have a reason to exist.
 
-Ideas that sound great on paper turn out to be terrible once they're playable.
+We like worlds that feel believable because their pieces make sense together, not because every surface has four billion polygons.
 
-Tiny problems somehow consume an entire afternoon.
+We like mechanics that give players room to experiment instead of immediately explaining the correct answer.
 
-And every once in a while, something that seemed impossible suddenly clicks into place.
+And we're especially interested in those moments where something that initially seemed complicated suddenly makes sense because **you learned how it works**.
 
-We want to document some of that.
+Those ideas are already shaping Project 01.
 
-Not just the polished milestones, but the process behind them.
+They'll probably shape whatever comes after it, too.
 
-That means these posts may include things like:
+And, just to get this on the record early:
 
-- design problems we're thinking through
-- technical experiments
-- art direction
-- development workflow
-- tools we're building
-- lessons learned
-- things that absolutely did not work
+All of that could change.
 
-Without, of course, spoiling the thing we're actually making.
+We're still a brand new studio making our first game. The way we design things, the kinds of games we want to make, even the things we think we're "definitely" sure about right now will probably evolve as we actually do this.
 
-## What kind of games do we want to make?
+Future us may read this post and disagree with half of it.
 
-We're interested in games that reward curiosity.
+That's probably healthy.
 
-Games where paying attention matters.
+We're not trying to carve a permanent manifesto into stone. We're documenting what we believe **right now**, while leaving ourselves room to learn, change our minds, and occasionally realize that an idea we were very confident about was, in fact, terrible.
 
-Games where understanding how something works can be just as valuable as unlocking something new.
+Consider this less of a constitution and more of a commit message.
 
-We like systems that interact with each other, spaces that feel believable, and mechanics that leave enough room for the player to actually figure things out.
+We reserve the right to `git revert` any of our deeply held design philosophies.
 
-A phrase we've been coming back to internally is:
+## Why start talking now?
 
-> **Simple, but not simplistic.**
+There's a slightly awkward period at the beginning of building a game where you're doing an enormous amount of work and have almost nothing you're ready to publicly show.
 
-We don't want complexity just for the sake of complexity.
+That's where we are.
 
-But we also don't want to sand off every interesting edge in the name of making something immediately obvious.
+We could disappear until Project 01 is ready for a reveal.
 
-There is a middle ground there that we're very interested in exploring.
+But we don't really want your first interaction with Syscall Studios to be a trailer suddenly appearing in your feed one day.
 
-## Why "Syscall"?
+We'd rather you get to know **us** first.
 
-The name comes from system calls; the mechanism programs use to request services from an operating system.
+How we approach problems.
 
-And the `[0x80]` in our logo is a nod to `int 0x80`, the classic Linux system-call interrupt on 32-bit x86 systems.
+What we care about.
 
-It's nerdy.
+Why we make certain design decisions.
 
-We know.
+What works.
 
-That's kind of the point.
+What doesn't.
 
-The idea of understanding what happens beneath the surface fits the kinds of things we're interested in making.
+And occasionally, what went catastrophically wrong at 2:00 in the morning.
 
-## So... what are we actually making?
+By the time you get to know our first game, hopefully you'll already know a little bit about the people and ideas behind it.
 
-Nice try.
+That's what this Dev Log is for.
 
-Project 01 is currently in active development.
+## What are we going to write about?
 
-We'll talk about it when we think showing it will be more interesting than simply saying that it exists.
+Whatever seems worth writing down.
 
-Until then, expect these logs to focus more on the process than the product.
+Some posts will be about game design.
 
-There's a lot happening behind the scenes.
+Some will be technical.
 
-We'll share what we can.
+Some might be about art, tools, production, running a tiny studio, or the strange problems that appear when you're trying to turn an idea into an actual piece of software.
+
+We'll talk about experiments that worked.
+
+We'll probably talk even more about experiments that didn't.
+
+What we *won't* do is turn every post into a carefully sanitized marketing update where everything is always going perfectly.
+
+Because that isn't game development.
+
+We're figuring a lot of this out as we go.
+
+That seems worth documenting.
+
+## What's with `[0x80]`?
+
+The name **Syscall Studios** comes from system calls: the mechanism programs use to request services from an operating system.
+
+The `[0x80]` in our logo is a reference to `int 0x80`, the classic system-call interrupt used on 32-bit x86 Linux.
+
+Yes, it's nerdy.
+
+We are aware.
+
+But the idea behind it fits us surprisingly well.
+
+A system can look simple from the outside while an entire world of interconnected pieces is working underneath it.
+
+Understanding those pieces (and what happens when they interact) is interesting to us.
+
+In software.
+
+In games.
+
+Probably in far too many other things.
+
+## Starting from zero
+
+There's something exciting about writing the first post when there's almost nothing here yet.
+
+No back catalog.
+
+No released games.
+
+No giant team page.
+
+Just a studio, a game in development, and a lot of work ahead of us.
+
+Eventually this site will look very different.
+
+There will be games here.
+
+Screenshots.
+
+Trailers.
+
+Old development posts that we'll probably read back and wonder what we were thinking.
+
+But right now?
+
+This is where it starts.
+
+Project 01 is compiling.
+
+Syscall Studios is online.
 
 More soon.
