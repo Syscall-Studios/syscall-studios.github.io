@@ -6,7 +6,8 @@ const staticRoutes = [
     "/games/",
     "/devlog/",
     "/about/",
-    "/contact/"
+    "/contact/",
+    "/careers/"
 ];
 
 export async function GET({ site: siteURL }) {

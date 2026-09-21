@@ -1,0 +1,572 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import site from "../data/site.json";
+
+const openRoles: { title: string; description: string }[] = [];
+---
+
+<BaseLayout
+    title="Careers"
+    description="Syscall Studios is not hiring yet. We are being honest about why."
+>
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="careers-hero">
+        <div class="container">
+
+            <p class="eyebrow">
+                SYS::CAREERS
+            </p>
+
+            <h1>
+                We can't<br />
+                afford you.
+            </h1>
+
+            <p class="hero-copy">
+                That's the entire page, really. But you scrolled here,
+                so we may as well explain properly.
+            </p>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         OPEN ROLES
+         ===================================================== -->
+
+    <section class="roles section">
+        <div class="container">
+
+            <p class="eyebrow">
+                ROLES::OPEN
+            </p>
+
+            <div class="roles-heading">
+                <h2>
+                    Current openings.
+                </h2>
+            </div>
+
+            {
+                openRoles.length > 0 ? (
+                    <div class="roles-list">
+                        {openRoles.map((role, index) => (
+                            <article class="role">
+                                <span class="role-number">
+                                    0{index + 1}
+                                </span>
+
+                                <div>
+                                    <h3>{role.title}</h3>
+
+                                    <p>{role.description}</p>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                ) : (
+                    <div class="roles-empty">
+                        <code>open_roles = []</code>
+
+                        <p>
+                            Zero. Not "zero, but send a résumé anyway so it
+                            can sit in a folder nobody opens." Actual zero.
+                        </p>
+                    </div>
+                )
+            }
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         THE HONEST MATH
+         ===================================================== -->
+
+    <section class="budget section">
+        <div class="container budget-grid">
+
+            <div class="budget-heading">
+                <p class="eyebrow">
+                    BUDGET::STATUS
+                </p>
+
+                <h2>
+                    The honest math.
+                </h2>
+            </div>
+
+            <div class="budget-copy">
+
+                <p>
+                    Syscall Studios is small and self-funded. Our hiring
+                    budget is a spreadsheet where the most common value
+                    is zero, and the second most common value is also zero.
+                </p>
+
+                <p>
+                    Every bit of money we do have is going into building
+                    Project 01, which currently pays us in experience,
+                    bug reports, and the occasional feeling of progress.
+                </p>
+
+                <p>
+                    Hiring someone means paying them properly. Until we
+                    can do that, posting job openings would just be a
+                    creative writing exercise.
+                </p>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         WHAT WE WON'T DO
+         ===================================================== -->
+
+    <section class="promises section">
+        <div class="container">
+
+            <p class="eyebrow">
+                STUDIO::PROMISES
+            </p>
+
+            <div class="promises-heading">
+                <h2>
+                    Things we won't do.
+                </h2>
+            </div>
+
+            <div class="promises-grid">
+
+                <article class="promise">
+                    <span class="promise-number">
+                        01
+                    </span>
+
+                    <h3>
+                        Unpaid "internships"
+                    </h3>
+
+                    <p>
+                        If someone does real work on our game, they get
+                        paid real money for it. Exposure has never once
+                        covered rent.
+                    </p>
+                </article>
+
+
+                <article class="promise">
+                    <span class="promise-number">
+                        02
+                    </span>
+
+                    <h3>
+                        Revenue-share fantasies
+                    </h3>
+
+                    <p>
+                        We're not going to offer you 0.5% of a game that
+                        does not exist yet. That's not compensation,
+                        that's a lottery ticket with extra steps.
+                    </p>
+                </article>
+
+
+                <article class="promise">
+                    <span class="promise-number">
+                        03
+                    </span>
+
+                    <h3>
+                        Ghost job listings
+                    </h3>
+
+                    <p>
+                        No fake openings to look larger than we are.
+                        If a role appears on this page, it exists and
+                        it has a budget attached to it.
+                    </p>
+                </article>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         WHEN THIS CHANGES
+         ===================================================== -->
+
+    <section class="future section">
+        <div class="container future-inner">
+
+            <div>
+                <p class="eyebrow">
+                    CURRENT::STATUS
+                </p>
+
+                <h2>
+                    Check back<br />
+                    eventually.
+                </h2>
+            </div>
+
+            <div class="future-copy">
+
+                <div class="status-line">
+                    <span class="status-dot"></span>
+                    <span>NOT HIRING</span>
+                </div>
+
+                <p>
+                    If that ever changes, this page changes first, and
+                    the Dev Log will almost certainly mention it at
+                    length. Following along is the best way to know.
+                </p>
+
+                <p class="future-note">
+                    If you just want to say hello, talk shop, or introduce
+                    yourself for a future that may involve an actual budget,
+                    <a href={`mailto:${site.emails.business}`}>{site.emails.business}</a> reaches a human. No portfolio required, though we will
+                    absolutely look at it.
+                </p>
+
+                <a
+                    href="/devlog"
+                    class="button"
+                >
+                    Follow Development
+                </a>
+
+            </div>
+
+        </div>
+    </section>
+
+</BaseLayout>
+
+
+<style>
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .careers-hero {
+        padding-top: clamp(7rem, 13vw, 12rem);
+        padding-bottom: clamp(5rem, 10vw, 9rem);
+    }
+
+    .careers-hero h1 {
+        max-width: 1000px;
+
+        margin-bottom: 2.5rem;
+
+        font-size: clamp(3.25rem, 8.5vw, 7rem);
+    }
+
+    .hero-copy {
+        max-width: 660px;
+
+        margin-bottom: 0;
+
+        color: var(--color-muted);
+
+        font-size: clamp(1.15rem, 2vw, 1.4rem);
+    }
+
+
+    /* =====================================================
+       ROLES
+       ===================================================== */
+
+    .roles {
+        background: var(--color-white);
+        color: var(--color-slate);
+    }
+
+    .roles-heading {
+        margin-bottom: 3rem;
+    }
+
+    .roles-heading h2 {
+        margin-bottom: 0;
+    }
+
+    .roles-empty {
+        padding: clamp(2rem, 5vw, 3rem);
+
+        border: 1px solid var(--color-gray);
+    }
+
+    .roles-empty code {
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+    }
+
+    .roles-empty p {
+        max-width: 620px;
+
+        margin-top: 1.25rem;
+        margin-bottom: 0;
+
+        font-size: 1.1rem;
+    }
+
+    .roles-list {
+        border-top: 1px solid var(--color-gray);
+    }
+
+    .role {
+        display: grid;
+        grid-template-columns: minmax(50px, 80px) 1fr;
+
+        gap: 2rem;
+
+        padding-block: clamp(2rem, 5vw, 3rem);
+
+        border-bottom: 1px solid var(--color-gray);
+    }
+
+    .role-number {
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+    }
+
+    .role p {
+        max-width: 620px;
+
+        margin-bottom: 0;
+    }
+
+
+    /* =====================================================
+       BUDGET
+       ===================================================== */
+
+    .budget-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        gap: clamp(4rem, 10vw, 9rem);
+    }
+
+    .budget-heading h2 {
+        max-width: 600px;
+
+        margin-bottom: 0;
+    }
+
+    .budget-copy {
+        align-self: end;
+
+        max-width: 560px;
+
+        color: var(--color-muted);
+
+        font-size: 1.15rem;
+    }
+
+    .budget-copy p:last-child {
+        margin-bottom: 0;
+    }
+
+
+    /* =====================================================
+       PROMISES
+       ===================================================== */
+
+    .promises {
+        background:
+            linear-gradient(
+                135deg,
+                rgb(121 83 245 / 10%),
+                transparent 45%
+            );
+    }
+
+    .promises-heading {
+        max-width: 750px;
+
+        margin-bottom: 4rem;
+    }
+
+    .promises-heading h2 {
+        margin-bottom: 0;
+    }
+
+    .promises-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+
+        border-top: 1px solid rgb(216 216 216 / 20%);
+    }
+
+    .promise {
+        min-height: 340px;
+
+        padding: 2.5rem;
+
+        border-right: 1px solid
+            rgb(216 216 216 / 20%);
+    }
+
+    .promise:first-child {
+        border-left: 1px solid
+            rgb(216 216 216 / 20%);
+    }
+
+    .promise-number {
+        display: block;
+
+        margin-bottom: 5rem;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+    }
+
+    .promise h3 {
+        margin-bottom: 1.25rem;
+
+        font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    }
+
+    .promise p {
+        max-width: 340px;
+
+        margin-bottom: 0;
+
+        color: var(--color-muted);
+    }
+
+
+    /* =====================================================
+       FUTURE
+       ===================================================== */
+
+    .future {
+        background: var(--color-white);
+        color: var(--color-slate);
+    }
+
+    .future-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        gap: clamp(4rem, 10vw, 9rem);
+    }
+
+    .future h2 {
+        margin-bottom: 0;
+    }
+
+    .future-copy {
+        align-self: end;
+
+        max-width: 540px;
+    }
+
+    .status-line {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+
+        margin-bottom: 1.5rem;
+
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+
+        border-radius: 50%;
+
+        background: var(--color-purple);
+
+        box-shadow:
+            0 0 12px rgb(121 83 245 / 55%);
+    }
+
+    .future-copy p {
+        font-size: 1.1rem;
+    }
+
+    .future-note {
+        margin-bottom: 2rem;
+
+        color: rgb(67 75 87 / 78%);
+    }
+
+    .future-note a {
+        color: var(--color-purple);
+
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+
+        word-break: break-word;
+    }
+
+    .future-copy .button {
+        color: var(--color-slate);
+        border-color: var(--color-slate);
+    }
+
+    .future-copy .button:hover {
+        color: var(--color-white);
+        border-color: var(--color-purple);
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @media (max-width: 850px) {
+
+        .budget-grid,
+        .future-inner {
+            grid-template-columns: 1fr;
+        }
+
+        .promises-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .promise {
+            min-height: auto;
+
+            border-left: 1px solid
+                rgb(216 216 216 / 20%);
+            border-bottom: 1px solid
+                rgb(216 216 216 / 20%);
+        }
+
+        .promise-number {
+            margin-bottom: 3rem;
+        }
+    }
+
+</style>

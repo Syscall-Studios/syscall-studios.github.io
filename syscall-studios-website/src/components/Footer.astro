@@ -2,58 +2,99 @@
 import site from "../data/site.json";
 import navItems from "../data/nav.json";
 import { socialLinks } from "../lib/socials";
+
+const siteLinks = [
+    ...navItems,
+    { label: "Careers", href: "/careers" },
+    { label: "RSS", href: "/rss.xml" }
+];
 ---
 
 <footer class="site-footer">
     <div class="container footer-inner">
-        <div class="footer-main">
-            <a class="footer-brand" href="/" aria-label="Syscall Studios Home">
-                <img
-                    src="/brand/logo-mark-light.svg"
-                    alt=""
-                />
 
-                <span>Syscall Studios</span>
-            </a>
+        <div class="footer-groups">
 
-            <nav class="footer-nav" aria-label="Footer navigation">
-                {
-                    navItems.map((item) => (
-                        <a href={item.href}>{item.label}</a>
-                    ))
-                }
-                <a href="/rss.xml">RSS</a>
-            </nav>
-        </div>
+            <div class="footer-identity">
 
-        {
-            socialLinks.length > 0 && (
-                <nav class="footer-socials" aria-label="Social links">
+                <a
+                    class="footer-brand"
+                    href="/"
+                    aria-label="Syscall Studios Home"
+                >
+                    <img
+                        src="/brand/logo-mark-light.svg"
+                        alt=""
+                    />
+
+                    <span>Syscall Studios</span>
+                </a>
+
+                <p class="footer-tagline">
+                    {site.tagline}
+                </p>
+
+            </div>
+
+            <nav class="footer-group" aria-label="Footer navigation">
+
+                <p class="footer-heading">
+                    SITE
+                </p>
+
+                <ul class="footer-links">
                     {
-                        socialLinks.map((social) => (
-                            <a
-                                href={social.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`${social.label} (opens in a new tab)`}
-                            >
-                                {social.label}
-                            </a>
+                        siteLinks.map((item) => (
+                            <li>
+                                <a href={item.href}>{item.label}</a>
+                            </li>
                         ))
                     }
-                </nav>
-            )
-        }
+                </ul>
+
+            </nav>
+
+            {
+                socialLinks.length > 0 && (
+                    <nav class="footer-group" aria-label="Social links">
+
+                        <p class="footer-heading">
+                            ELSEWHERE
+                        </p>
+
+                        <ul class="footer-links">
+                            {
+                                socialLinks.map((social) => (
+                                    <li>
+                                        <a
+                                            href={social.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={`${social.label} (opens in a new tab)`}
+                                        >
+                                            {social.label}
+                                        </a>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+
+                    </nav>
+                )
+            }
+
+        </div>
 
         <div class="footer-meta">
             <span>
                 © {new Date().getFullYear()} {site.studioName}
             </span>
 
-            <span class="separator">|</span>
+            <span class="separator" aria-hidden="true">|</span>
 
             <span>Independent Game Studio</span>
         </div>
+
     </div>
 </footer>
 
@@ -61,98 +102,121 @@ import { socialLinks } from "../lib/socials";
     .site-footer {
         border-top: 1px solid rgb(216 216 216 / 12%);
 
-        padding-block: clamp(2rem, 5vw, 3.5rem);
+        padding-block: clamp(2.5rem, 6vw, 4rem);
     }
 
     .footer-inner {
         display: grid;
-        gap: 1.5rem;
+        gap: clamp(2rem, 5vw, 3rem);
     }
 
-    .footer-main {
+    /*
+       Flex basis does the responsive work here: each group keeps a readable
+       minimum and drops to the next line on its own, so the footer reflows
+       at any width instead of at a handful of breakpoints.
+    */
+    .footer-groups {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: clamp(2rem, 5vw, 4rem);
+    }
 
-        gap: 2rem;
+    .footer-identity {
+        flex: 1 1 17rem;
+        min-width: 0;
+    }
+
+    .footer-group {
+        flex: 1 1 11rem;
+        min-width: 0;
     }
 
     .footer-brand {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.75rem;
 
         font-family: var(--font-brand);
-        font-size: 1.3rem;
+        font-size: clamp(1.1rem, 2.5vw, 1.3rem);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
     .footer-brand img {
-        width: 50px;
+        flex-shrink: 0;
+
+        width: clamp(38px, 5vw, 50px);
     }
 
-    .footer-nav,
-    .footer-socials {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem clamp(1rem, 3vw, 2rem);
+    .footer-tagline {
+        max-width: 24rem;
+
+        margin-top: 1rem;
+        margin-bottom: 0;
+
+        color: var(--color-muted);
+
+        font-size: 0.95rem;
+    }
+
+    .footer-heading {
+        margin-bottom: 0.4rem;
+
+        color: var(--color-accent);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+    }
+
+    .footer-links {
+        display: grid;
+        grid-template-columns:
+            repeat(auto-fill, minmax(7rem, 1fr));
+        gap: 0 1.5rem;
+
+        margin: 0;
+        padding: 0;
+
+        list-style: none;
+    }
+
+    .footer-links a {
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 2.5rem;
 
         color: var(--color-muted);
 
         font-family: var(--font-mono);
-        font-size: 1rem;
-    }
+        font-size: 0.95rem;
 
-    .footer-nav {
-        justify-content: flex-end;
-    }
-
-    .footer-nav a,
-    .footer-socials a {
         transition: color var(--transition-fast);
     }
 
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible,
-    .footer-socials a:hover,
-    .footer-socials a:focus-visible {
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
         color: var(--color-white);
     }
 
     .footer-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        align-items: center;
+        gap: 0.5rem 0.75rem;
+
+        padding-top: clamp(1.5rem, 4vw, 2rem);
+
+        border-top: 1px solid rgb(216 216 216 / 12%);
 
         color: var(--color-muted);
 
         font-family: var(--font-mono);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     .separator {
         color: var(--color-accent);
-    }
-
-    @media (max-width: 650px) {
-        .footer-main,
-        .footer-meta {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .footer-nav {
-            justify-content: flex-start;
-            gap: 0.25rem 1.25rem;
-        }
-
-        .footer-nav a,
-        .footer-socials a {
-            min-height: 44px;
-
-            display: inline-flex;
-            align-items: center;
-        }
     }
 </style>

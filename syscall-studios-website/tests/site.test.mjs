@@ -65,6 +65,7 @@ test("core pages and feeds are generated", async () => {
         "about/index.html",
         "contact/index.html",
         "games/index.html",
+        "careers/index.html",
         "devlog/index.html",
         "robots.txt",
         "sitemap.xml",
@@ -96,6 +97,21 @@ test("rss feed lists published posts newest first", async () => {
     ].map((match) => match[1]);
 
     assert.deepEqual(feedIds, expectedIds);
+});
+
+test("careers page states that no roles are open", async () => {
+    const html = await readPage("careers/index.html");
+
+    assert.match(html, /open_roles = \[\]/);
+    assert.match(html, /NOT HIRING/);
+    assert.match(html, /mailto:/);
+});
+
+test("footer links to careers and the feed", async () => {
+    const html = await readPage("index.html");
+
+    assert.match(html, /href="\/careers"/);
+    assert.match(html, /href="\/rss\.xml"/);
 });
 
 test("custom 404 page offers a clear route home", async () => {
