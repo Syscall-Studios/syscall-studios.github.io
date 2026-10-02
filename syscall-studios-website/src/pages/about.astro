@@ -1,74 +1,109 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const subjects = [
+    "a machine",
+    "a small business",
+    "a workplace",
+    "an economy",
+    "a community",
+    "a piece of infrastructure",
+    "a logistical operation",
+    "a physical process",
+    "a place"
+];
+
+const gates = [
+    {
+        question: "Is it fun?",
+        detail: "Fun in the prototype, today. Not fun once we've added the fifty features we have planned. If the rough version doesn't make us want to keep playing, more features won't fix it.",
+        fail: "If not, we stop."
+    },
+    {
+        question: "Will people care?",
+        detail: "It doesn't need to be for everyone. We just need to believe there are people out there who'd get into it, talk about it, and swap what they've figured out.",
+        fail: "If not, we figure out why."
+    },
+    {
+        question: "Can we actually build it?",
+        detail: "With the people, tools, time and money we really have. A great idea we can't finish doesn't help anyone.",
+        fail: "If not, we cut it down or shelve it for later."
+    }
+];
+
+const avoid = [
+    ["Complexity for its own sake", "A game can be complicated without being deep."],
+    ["Realism for its own sake", "We'll simulate what makes the game better and skip the rest."],
+    ["Spreadsheet worlds", "If a number matters, you should be able to see what it's doing."],
+    ["Empty spectacle", "A good-looking place still needs a reason to be there."],
+    ["Too much hand-holding", "We'd rather leave you room to work things out."],
+    ["Scope creep", "Adding more stuff rarely makes a game better."],
+    ["Filler content", "We'd rather make a few things that matter than a lot you'll forget."],
+    ["Getting stuck in one genre", "We want to be able to make something completely different next time."]
+];
+
+const syscallLoop = [
+    { label: "1", text: "A program asks for something." },
+    { label: "2", text: "The system does it, or doesn't." },
+    { label: "3", text: "The program finds out what happened." },
+    { label: "4", text: "Next time, it asks better." }
+];
 ---
 
 <BaseLayout
     title="About"
-    description="About Syscall Studios | an independent game studio building thoughtful, systems-driven games."
+    description="Syscall Studios is an independent game studio making games about learning how things work."
 >
 
     <!-- =====================================================
          HERO
          ===================================================== -->
 
-    <section class="about-hero">
+    <section class="page-hero">
         <div class="container">
+            <p class="eyebrow">About the studio</p>
 
-            <p class="eyebrow">
-                SYS::ABOUT
+            <h1>We make games about figuring things out.</h1>
+
+            <p class="lede">
+                Syscall Studios is an independent game studio. We like
+                games where you slowly work out how something works,
+                whether that's a machine, a small business, or a whole
+                town.
             </p>
-
-            <h1>
-                Small studio.<br />
-                Big curiosity.
-            </h1>
-
-            <p class="hero-copy">
-                Syscall Studios is an independent game studio focused
-                on thoughtful systems, tactile interactions, and worlds
-                that reward players for paying attention.
-            </p>
-
         </div>
     </section>
 
 
     <!-- =====================================================
-         INTRO
+         THE SOMETHING
          ===================================================== -->
 
-    <section class="intro-section section">
-        <div class="container intro-grid">
+    <section class="subject section">
+        <div class="container">
 
-            <div class="intro-heading">
-                <p class="eyebrow">
-                    WHO WE ARE
+            <p class="eyebrow">What our games are about</p>
+
+            <h2 class="subject-line" data-reveal>
+                Learn how<br />
+                <span class="subject-cycle" data-cycle>
+                    <span class="subject-word accent" data-cycle-word>{subjects[0]}</span>
+                </span><br />
+                works.
+            </h2>
+
+            <ul class="subject-list" aria-label="Things a Syscall game might be about">
+                {subjects.map((subject) => <li>{subject}</li>)}
+            </ul>
+
+            <div class="not-defined">
+                <p data-reveal>
+                    We don't want to be stuck making one genre or one art
+                    style, and our games won't all be about computers.
                 </p>
-
-                <h2>
-                    Games made with intention.
-                </h2>
-            </div>
-
-            <div class="intro-copy">
-
-                <p>
-                    We're a small independent studio interested in games
-                    where understanding how something works is part of
-                    the experience.
+                <p class="defined" data-reveal style="--reveal-index: 1">
+                    What stays the same is <span class="accent">how we approach them.</span>
                 </p>
-
-                <p>
-                    We like systems that interact, environments that feel
-                    lived in, and mechanics that encourage experimentation
-                    instead of constantly telling the player what to do.
-                </p>
-
-                <p>
-                    Our first game is currently in development.
-                    We're not ready to talk about it just yet.
-                </p>
-
             </div>
 
         </div>
@@ -76,74 +111,136 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 
     <!-- =====================================================
-         PRINCIPLES
+         HOW IT SHOULD FEEL
          ===================================================== -->
 
-    <section class="principles section">
+    <section class="feel section">
+        <div class="container feel-grid">
+
+            <div>
+                <p class="eyebrow">How it should feel</p>
+                <h2 data-reveal>The moment it clicks.</h2>
+            </div>
+
+            <div class="feel-copy" data-reveal style="--reveal-index: 1">
+                <p>
+                    At first you don't really know what's going on. You poke
+                    at things, try stuff, and watch what happens. Slowly you
+                    start to notice patterns.
+                </p>
+
+                <p>
+                    Eventually you stop just reacting and start planning
+                    ahead. You try something on purpose, it works, and it
+                    worked because <em>you</em> figured it out.
+                </p>
+
+                <p class="feel-quote">
+                    &ldquo;Holy shit. I figured that out.&rdquo;
+                </p>
+
+                <p class="muted">
+                    We can't hand you that feeling. All we can do is build
+                    something worth figuring out.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         GREENLIGHT
+         ===================================================== -->
+
+    <section class="gates section">
         <div class="container">
 
-            <p class="eyebrow">
-                STUDIO::PRINCIPLES
-            </p>
-
-            <div class="principles-heading">
-                <h2>
-                    What matters to us.
-                </h2>
+            <div class="gates-head">
+                <p class="eyebrow">How we pick projects</p>
+                <h2 data-reveal>Three questions, in this order.</h2>
             </div>
 
-            <div class="principles-grid">
+            <ol class="gate-list">
+                {
+                    gates.map((gate, index) => (
+                        <li class="gate" data-reveal style={`--reveal-index: ${index}`}>
+                            <span class="gate-number">Question {index + 1}</span>
+                            <h3>{gate.question}</h3>
+                            <p>{gate.detail}</p>
+                            <span class="gate-fail">{gate.fail}</span>
+                        </li>
+                    ))
+                }
+            </ol>
 
-                <article class="principle">
-                    <span class="principle-number">
-                        01
-                    </span>
-
-                    <h3>
-                        Curiosity
-                    </h3>
-
-                    <p>
-                        We want players to ask questions, experiment,
-                        investigate, and understand the systems around them.
-                    </p>
-                </article>
-
-
-                <article class="principle">
-                    <span class="principle-number">
-                        02
-                    </span>
-
-                    <h3>
-                        Believability
-                    </h3>
-
-                    <p>
-                        A world doesn't have to be photorealistic to feel
-                        convincing. Small details, consistent rules, and
-                        thoughtful interactions go a long way.
-                    </p>
-                </article>
+        </div>
+    </section>
 
 
-                <article class="principle">
-                    <span class="principle-number">
-                        03
-                    </span>
+    <!-- =====================================================
+         HOW WE BUILD
+         ===================================================== -->
 
-                    <h3>
-                        Simplicity
-                    </h3>
+    <section class="build section">
+        <div class="container build-grid">
 
-                    <p>
-                        Good design doesn't need unnecessary complexity.
-                        We aim for experiences that are approachable without
-                        stripping away depth.
-                    </p>
-                </article>
-
+            <div>
+                <p class="eyebrow">How we build</p>
+                <h2 data-reveal>Get the core working first.</h2>
+                <p class="build-copy muted" data-reveal style="--reveal-index: 1">
+                    We're a small team, so we have to be picky about where the
+                    time goes. We'd rather make a few systems really good
+                    than spread ourselves thin across a hundred features.
+                </p>
             </div>
+
+            <div class="pipelines" data-reveal style="--reveal-index: 1">
+                <div class="pipeline">
+                    <p class="pipeline-label accent">What we do</p>
+                    <ol>
+                        <li>Build a small version that actually plays</li>
+                        <li>Make sure it's fun</li>
+                        <li>Make it better</li>
+                        <li>Then make it bigger</li>
+                    </ol>
+                </div>
+
+                <div class="pipeline pipeline-bad">
+                    <p class="pipeline-label">What we try not to do</p>
+                    <ol>
+                        <li>Build everything at once</li>
+                        <li>Hope it gets fun later</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         AVOID
+         ===================================================== -->
+
+    <section class="avoid section">
+        <div class="container">
+
+            <div class="avoid-head">
+                <p class="eyebrow">What we avoid</p>
+                <h2 data-reveal>Things we try not to do.</h2>
+            </div>
+
+            <ul class="avoid-list">
+                {
+                    avoid.map(([name, reason], index) => (
+                        <li data-reveal style={`--reveal-index: ${index % 2}`}>
+                            <s>{name}</s>
+                            <span>{reason}</span>
+                        </li>
+                    ))
+                }
+            </ul>
 
         </div>
     </section>
@@ -153,46 +250,50 @@ import BaseLayout from "../layouts/BaseLayout.astro";
          THE NAME
          ===================================================== -->
 
-    <section class="origin section">
-        <div class="container origin-grid">
+    <section class="name section">
+        <div class="container name-grid">
 
-            <div class="origin-mark">
-
+            <div class="name-mark" data-reveal>
                 <img
                     src="/brand/logo-mark-light.svg"
-                    alt="Syscall Studios 0x80 mark"
+                    alt="Syscall Studios logo"
+                    width="234"
+                    height="90"
                 />
 
+                <ol class="syscall-loop" aria-label="How a system call works">
+                    {
+                        syscallLoop.map((step, index) => (
+                            <li style={`--step: ${index}`}>
+                                <span class="loop-label">{step.label}</span>
+                                <span>{step.text}</span>
+                            </li>
+                        ))
+                    }
+                </ol>
             </div>
 
+            <div class="name-copy">
+                <p class="eyebrow">The name</p>
 
-            <div class="origin-copy">
+                <h2 class="name-title" data-reveal>Why Syscall?</h2>
 
-                <p class="eyebrow">
-                    WHY | SYSCALL
+                <p data-reveal style="--reveal-index: 1">
+                    A system call is how a program asks the operating system
+                    to do something for it. On old 32-bit Linux, that was <code>int 0x80</code>,
+                    which is where the bracket in our logo comes from.
                 </p>
 
-                <h2>
-                    int 0x80
-                </h2>
-
-                <p>
-                    In classic 32-bit Linux, <code>int 0x80</code> was a way for a program to request a service from the operating system kernel; a system call.
+                <p data-reveal style="--reveal-index: 2">
+                    We liked it because it's basically how we think about
+                    playing a good game. You try something, see what
+                    happens, learn a bit, and try something smarter next time.
                 </p>
 
-                <p>
-                    It's a small piece of computing history that felt
-                    appropriate for a studio interested in systems,
-                    technology, and understanding what happens beneath
-                    the surface.
+                <p class="muted" data-reveal style="--reveal-index: 3">
+                    And no, that doesn't mean all our games are about
+                    computers.
                 </p>
-
-                <div class="terminal-line">
-                    <span class="prompt">&gt;</span>
-                    <span>invoke creativity</span>
-                    <span class="cursor"></span>
-                </div>
-
             </div>
 
         </div>
@@ -200,42 +301,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 
     <!-- =====================================================
-         CURRENT STATUS
+         VOICE / CLOSER
          ===================================================== -->
 
-    <section class="current section">
-        <div class="container current-inner">
+    <section class="closer section">
+        <div class="container">
 
-            <div>
-                <p class="eyebrow">
-                    CURRENT::STATUS
+            <p class="eyebrow">What to expect from us</p>
+
+            <div class="closer-bottom" data-reveal>
+                <p class="closer-line">
+                    If you see our name on a game, we hope the first thing
+                    you think is: <strong>someone cared about how this works.</strong>
                 </p>
 
-                <h2>
-                    Building<br />
-                    Project 01.
-                </h2>
-            </div>
-
-            <div class="current-copy">
-
-                <div class="status-line">
-                    <span class="status-dot"></span>
-                    <span>IN DEVELOPMENT</span>
+                <div class="closer-actions">
+                    <a href="/games" class="button button-primary">See what we're building</a>
+                    <a href="/devlog" class="button">Read the dev log</a>
                 </div>
-
-                <p>
-                    Our first title is currently in active development.
-                    We'll share more when it's ready.
-                </p>
-
-                <a
-                    href="/devlog"
-                    class="button"
-                >
-                    Follow Development
-                </a>
-
             </div>
 
         </div>
@@ -243,306 +326,497 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 </BaseLayout>
 
+<script>
+    const cycle = document.querySelector<HTMLElement>("[data-cycle]");
+    const word = cycle?.querySelector<HTMLElement>("[data-cycle-word]");
+    const items = [...document.querySelectorAll(".subject-list li")].map(
+        (item) => item.textContent ?? ""
+    );
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (cycle && word && items.length > 1 && !reduced) {
+        let index = 0;
+
+        window.setInterval(() => {
+            if (document.hidden) return;
+
+            word.classList.add("is-leaving");
+
+            window.setTimeout(() => {
+                index = (index + 1) % items.length;
+                word.textContent = items[index];
+                word.classList.remove("is-leaving");
+            }, 320);
+        }, 2200);
+    }
+</script>
 
 <style>
 
     /* =====================================================
-       HERO
+       SUBJECT
        ===================================================== */
 
-    .about-hero {
-        padding-top: clamp(7rem, 13vw, 12rem);
-        padding-bottom: clamp(5rem, 10vw, 9rem);
+    .subject-line {
+        margin-bottom: clamp(3rem, 6vw, 5rem);
+
+        font-size: clamp(3rem, 8.5vw, 7.5rem);
+        font-weight: 900;
+        letter-spacing: -0.045em;
+        line-height: 0.92;
     }
 
-    .about-hero h1 {
-        max-width: 1000px;
-
-        margin-bottom: 2.5rem;
-
-        font-size: clamp(3.25rem, 8.5vw, 7rem);
+    .subject-cycle {
+        display: inline-block;
     }
 
-    .hero-copy {
-        max-width: 700px;
+    .subject-word {
+        display: inline-block;
 
+        transition:
+            opacity 300ms ease,
+            transform 300ms var(--ease-out),
+            filter 300ms ease;
+    }
+
+    .subject-word:global(.is-leaving) {
+        opacity: 0;
+        filter: blur(6px);
+        transform: translateY(-0.2em);
+    }
+
+    .subject-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+
+        margin: 0 0 clamp(4rem, 8vw, 6rem);
+        padding: 0;
+
+        list-style: none;
+    }
+
+    .subject-list li {
+        padding: 0.35rem 0.8rem;
+
+        border: 1px solid var(--line-strong);
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+    }
+
+    .not-defined {
+        display: grid;
+        gap: 0.25rem;
+
+        max-width: 52rem;
+    }
+
+    .not-defined p {
+        margin: 0;
+
+        color: var(--color-dim);
+
+        font-size: clamp(1.4rem, 3vw, 2.4rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+
+    .not-defined .defined {
+        margin-top: 1rem;
+
+        color: var(--color-white);
+        font-weight: 800;
+    }
+
+
+    /* =====================================================
+       FEEL
+       ===================================================== */
+
+    .feel {
+        background:
+            radial-gradient(
+                ellipse 50% 70% at 0% 50%,
+                rgb(121 83 245 / 14%),
+                transparent 70%
+            );
+    }
+
+    .feel-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(3rem, 8vw, 8rem);
+        align-items: start;
+    }
+
+    .feel-grid h2 {
+        position: sticky;
+        top: calc(var(--header-height) + 2rem);
+    }
+
+    .feel-copy {
+        font-size: 1.2rem;
+    }
+
+    .feel-quote {
+        margin-block: 2.5rem;
+        padding-left: 1.5rem;
+
+        border-left: 3px solid var(--color-purple-bright);
+
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+    }
+
+
+    /* =====================================================
+       GATES
+       ===================================================== */
+
+    .gates-head {
+        margin-bottom: clamp(3rem, 6vw, 5rem);
+    }
+
+    .gates-head h2 {
         margin-bottom: 0;
+    }
+
+    .gate-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+
+        margin: 0;
+        padding: 0;
+
+        list-style: none;
+        counter-reset: gate;
+    }
+
+    .gate {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+
+        padding: clamp(1.75rem, 3vw, 2.5rem);
+
+        border: 1px solid var(--line-strong);
+        background: var(--ink-1);
+    }
+
+    /* Arrow between gates: they are sequential, not parallel. */
+    .gate:not(:last-child)::after {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        right: -1.05rem;
+
+        display: grid;
+        place-items: center;
+
+        width: 2rem;
+        height: 2rem;
+
+        border: 1px solid var(--line-strong);
+        background: var(--ink-0);
+        color: var(--color-purple-bright);
+
+        font-family: var(--font-mono);
+        content: "→";
+        transform: translateY(-50%);
+    }
+
+    .gate-number {
+        margin-bottom: 3rem;
+
+        color: var(--color-purple-bright);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .gate h3 {
+        margin-bottom: 1rem;
+
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 800;
+    }
+
+    .gate p {
+        color: var(--color-muted);
+    }
+
+    .gate-fail {
+        margin-top: auto;
+        padding-top: 1rem;
+
+        border-top: 1px dashed var(--line-strong);
+        color: var(--color-dim);
+
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+    }
+
+
+    /* =====================================================
+       BUILD
+       ===================================================== */
+
+    .build-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(3rem, 8vw, 8rem);
+        align-items: center;
+    }
+
+    .build-copy {
+        max-width: 30rem;
+        margin-top: 2rem;
+
+        font-size: 1.15rem;
+    }
+
+    .pipelines {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .pipeline {
+        padding: 1.75rem;
+
+        border: 1px solid var(--line-strong);
+        background: var(--ink-1);
+    }
+
+    .pipeline-label {
+        margin-bottom: 1.25rem;
+
+        color: var(--color-dim);
+
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .pipeline ol {
+        display: grid;
+        gap: 0;
+
+        margin: 0;
+        padding: 0;
+
+        list-style: none;
+    }
+
+    .pipeline li {
+        font-size: clamp(1rem, 1.6vw, 1.2rem);
+    }
+
+    .pipeline li + li::before {
+        display: block;
+
+        padding-block: 0.25rem;
+        padding-left: 0.4rem;
+
+        color: var(--color-purple-bright);
+
+        content: "↓";
+    }
+
+    .pipeline-bad {
+        background: transparent;
+        border-style: dashed;
+    }
+
+    .pipeline-bad li {
+        color: var(--color-dim);
+
+        text-decoration: line-through;
+        text-decoration-color: rgb(164 141 255 / 70%);
+    }
+
+    .pipeline-bad li + li::before {
+        color: var(--color-dim);
+    }
+
+
+    /* =====================================================
+       AVOID
+       ===================================================== */
+
+    .avoid-head {
+        margin-bottom: clamp(3rem, 6vw, 5rem);
+    }
+
+    .avoid-head h2 {
+        margin-bottom: 0;
+    }
+
+    .avoid-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: clamp(2rem, 6vw, 5rem);
+
+        margin: 0;
+        padding: 0;
+
+        border-top: 1px solid var(--line-strong);
+
+        list-style: none;
+    }
+
+    .avoid-list li {
+        display: grid;
+        gap: 0.35rem;
+
+        padding-block: 1.5rem;
+
+        border-bottom: 1px solid var(--line-strong);
+    }
+
+    .avoid-list s {
+        font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+        font-weight: 700;
+        letter-spacing: -0.015em;
+
+        text-decoration-color: var(--color-purple-bright);
+        text-decoration-thickness: 2px;
+    }
+
+    .avoid-list span {
+        color: var(--color-muted);
+    }
+
+
+    /* =====================================================
+       NAME
+       ===================================================== */
+
+    .name {
+        overflow: hidden;
+    }
+
+    .name-grid {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: clamp(3rem, 8vw, 8rem);
+        align-items: center;
+    }
+
+    .name-mark {
+        padding: clamp(2rem, 4vw, 3rem);
+
+        border: 1px solid var(--line-strong);
+        background:
+            radial-gradient(
+                circle at 50% 0%,
+                rgb(121 83 245 / 20%),
+                transparent 70%
+            ),
+            var(--ink-1);
+    }
+
+    .name-mark img {
+        width: min(260px, 80%);
+        margin: 1rem auto 3rem;
+    }
+
+    .syscall-loop {
+        display: grid;
+        gap: 0;
+
+        margin: 0;
+        padding: 0;
+
+        list-style: none;
+    }
+
+    .syscall-loop li {
+        display: grid;
+        grid-template-columns: 1.5rem 1fr;
+        gap: 1rem;
+
+        padding-block: 0.75rem;
+
+        border-top: 1px solid var(--line);
+        color: var(--color-muted);
+    }
+
+    .loop-label {
+        color: var(--color-purple-bright);
+
+        font-family: var(--font-mono);
+    }
+
+    .name-title {
+        margin-bottom: 2rem;
+    }
+
+    .name-copy p {
+        max-width: 36rem;
+
+        font-size: 1.15rem;
+    }
+
+    .name-copy code {
+        color: var(--color-purple-bright);
+    }
+
+
+    /* =====================================================
+       CLOSER
+       ===================================================== */
+
+    .closer {
+        background:
+            radial-gradient(
+                ellipse 60% 80% at 100% 100%,
+                rgb(121 83 245 / 16%),
+                transparent 70%
+            );
+    }
+
+    .closer-bottom {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: 3rem;
+        align-items: end;
+
+        padding-top: 3rem;
+
+        border-top: 1px solid var(--line-strong);
+    }
+
+    .closer-line {
+        max-width: 40rem;
+        margin: 0;
 
         color: var(--color-muted);
 
         font-size: clamp(1.15rem, 2vw, 1.4rem);
     }
 
-
-    /* =====================================================
-       INTRO
-       ===================================================== */
-
-    .intro-section {
-        background: var(--color-white);
-        color: var(--color-slate);
-    }
-
-    .intro-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-
-        gap: clamp(4rem, 10vw, 9rem);
-    }
-
-    .intro-heading h2 {
-        max-width: 600px;
-
-        margin-bottom: 0;
-    }
-
-    .intro-copy {
-        align-self: end;
-
-        max-width: 560px;
-
-        font-size: 1.15rem;
-    }
-
-    .intro-copy p:last-child {
-        margin-bottom: 0;
-    }
-
-
-    /* =====================================================
-       PRINCIPLES
-       ===================================================== */
-
-    .principles-heading {
-        max-width: 750px;
-
-        margin-bottom: 4rem;
-    }
-
-    .principles-heading h2 {
-        margin-bottom: 0;
-    }
-
-    .principles-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-
-        border-top: 1px solid rgb(216 216 216 / 20%);
-    }
-
-    .principle {
-        min-height: 340px;
-
-        padding: 2.5rem;
-
-        border-right: 1px solid
-            rgb(216 216 216 / 20%);
-    }
-
-    .principle:first-child {
-        border-left: 1px solid
-            rgb(216 216 216 / 20%);
-    }
-
-    .principle-number {
-        display: block;
-
-        margin-bottom: 5rem;
-
-        color: var(--color-purple);
-
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        letter-spacing: 0.1em;
-    }
-
-    .principle h3 {
-        margin-bottom: 1.25rem;
-
-        font-size: clamp(1.75rem, 3vw, 2.5rem);
-    }
-
-    .principle p {
-        max-width: 340px;
-
-        margin-bottom: 0;
-
-        color: var(--color-muted);
-    }
-
-
-    /* =====================================================
-       ORIGIN
-       ===================================================== */
-
-    .origin {
-        background:
-            linear-gradient(
-                135deg,
-                rgb(121 83 245 / 11%),
-                transparent 45%
-            );
-    }
-
-    .origin-grid {
-        display: grid;
-        grid-template-columns: minmax(250px, 0.8fr) 1.2fr;
-
-        align-items: center;
-
-        gap: clamp(4rem, 10vw, 10rem);
-    }
-
-    .origin-mark {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        min-height: 400px;
-
-        border: 1px solid
-            rgb(216 216 216 / 15%);
-    }
-
-    .origin-mark img {
-        width: min(260px, 65%);
-    }
-
-    .origin-copy {
-        max-width: 650px;
-    }
-
-    .origin-copy h2 {
-        margin-bottom: 2rem;
-
-        font-family: var(--font-mono);
-        font-size: clamp(3.5rem, 7vw, 6rem);
-        font-weight: 400;
-        letter-spacing: normal;
-    }
-
-    .origin-copy p {
-        color: var(--color-muted);
-
-        font-size: 1.1rem;
-    }
-
-    .origin-copy code {
-        color: var(--color-purple);
-
-        font-family: var(--font-mono);
-    }
-
-
-    /* Terminal */
-
-    .terminal-line {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-
-        margin-top: 3rem;
-        padding: 1rem 1.25rem;
-
-        border: 1px solid
-            rgb(216 216 216 / 18%);
-
-        font-family: var(--font-mono);
-        font-size: 0.9rem;
-    }
-
-    .prompt {
-        color: var(--color-purple);
-    }
-
-    .cursor {
-        width: 8px;
-        height: 1rem;
-
-        background: var(--color-purple);
-
-        animation: blink 1.1s step-end infinite;
-    }
-
-    @keyframes blink {
-        0%,
-        50% {
-            opacity: 1;
-        }
-
-        51%,
-        100% {
-            opacity: 0;
-        }
-    }
-
-
-    /* =====================================================
-       CURRENT STATUS
-       ===================================================== */
-
-    .current {
-        background: var(--color-white);
-        color: var(--color-slate);
-    }
-
-    .current-inner {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-
-        gap: clamp(4rem, 10vw, 9rem);
-    }
-
-    .current h2 {
-        margin-bottom: 0;
-    }
-
-    .current-copy {
-        align-self: end;
-
-        max-width: 520px;
-    }
-
-    .status-line {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-
-        margin-bottom: 1.5rem;
-
-        color: var(--color-purple);
-
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        letter-spacing: 0.1em;
-    }
-
-    .status-dot {
-        width: 8px;
-        height: 8px;
-
-        border-radius: 50%;
-
-        background: var(--color-purple);
-
-        box-shadow:
-            0 0 12px rgb(121 83 245 / 55%);
-    }
-
-    .current-copy p {
-        margin-bottom: 2rem;
-
-        font-size: 1.1rem;
-    }
-
-    .current-copy .button {
-        color: var(--color-slate);
-        border-color: var(--color-slate);
-    }
-
-    .current-copy .button:hover {
+    .closer-line strong {
         color: var(--color-white);
-        border-color: var(--color-purple);
+        font-weight: 700;
+    }
+
+    .closer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 1rem;
     }
 
 
@@ -550,43 +824,43 @@ import BaseLayout from "../layouts/BaseLayout.astro";
        RESPONSIVE
        ===================================================== */
 
-    @media (max-width: 850px) {
-
-        .intro-grid,
-        .origin-grid,
-        .current-inner {
+    @media (max-width: 960px) {
+        .gate-list {
             grid-template-columns: 1fr;
         }
 
-        .principles-grid {
+        .gate:not(:last-child)::after {
+            top: auto;
+            right: auto;
+            bottom: -1.05rem;
+            left: 50%;
+
+            content: "↓";
+            transform: translateX(-50%);
+        }
+
+        .closer-bottom {
             grid-template-columns: 1fr;
         }
 
-        .principle {
-            min-height: auto;
-
-            border-left: 1px solid
-                rgb(216 216 216 / 20%);
-            border-bottom: 1px solid
-                rgb(216 216 216 / 20%);
-        }
-
-        .principle-number {
-            margin-bottom: 3rem;
-        }
-
-        .origin-mark {
-            min-height: 300px;
+        .closer-actions {
+            justify-content: flex-start;
         }
     }
 
+    @media (max-width: 820px) {
+        .feel-grid,
+        .build-grid,
+        .name-grid {
+            grid-template-columns: 1fr;
+        }
 
-    /* Respect reduced motion */
+        .feel-grid h2 {
+            position: static;
+        }
 
-    @media (prefers-reduced-motion: reduce) {
-        .cursor {
-            animation: none;
+        .avoid-list {
+            grid-template-columns: 1fr;
         }
     }
-
 </style>

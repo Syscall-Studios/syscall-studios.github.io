@@ -3,7 +3,7 @@ import { escapeXml } from "../lib/xml";
 import site from "../data/site.json";
 
 export async function GET({ site: siteURL }) {
-    const origin = siteURL ?? new URL("https://syscall-studios.github.io");
+    const origin = siteURL ?? new URL("https://syscallstudios.com");
     const posts = await getPublishedPosts();
     const items = posts
         .map((post) => {
@@ -27,7 +27,7 @@ export async function GET({ site: siteURL }) {
         "  <channel>",
         `    <title>${escapeXml(site.studioName)} Dev Log</title>`,
         `    <link>${new URL("/devlog/", origin)}</link>`,
-        `    <description>${escapeXml(site.tagline)}</description>`,
+        `    <description>${escapeXml(site.description)}</description>`,
         items,
         "  </channel>",
         "</rss>"

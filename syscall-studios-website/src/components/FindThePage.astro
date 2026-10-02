@@ -1,0 +1,446 @@
+---
+const COLS = 9;
+const ROWS = 6;
+const tiles = Array.from({ length: COLS * ROWS }, (_, index) => index);
+
+const pages = [
+    { name: "home page", href: "/" },
+    { name: "games page", href: "/games" },
+    { name: "dev log", href: "/devlog" },
+    { name: "about page", href: "/about" },
+    { name: "careers page", href: "/careers" },
+    { name: "contact page", href: "/contact" }
+];
+---
+
+<section
+    class="finder"
+    data-finder
+    data-cols={COLS}
+    data-rows={ROWS}
+    data-pages={JSON.stringify(pages)}
+    aria-labelledby="finder-title"
+>
+    <div class="finder-head">
+        <h2 id="finder-title" class="finder-title">The page is in here somewhere.</h2>
+        <dl class="finder-stats">
+            <div>
+                <dt>Tries</dt>
+                <dd data-tries>0</dd>
+            </div>
+            <div>
+                <dt>Best</dt>
+                <dd data-best>–</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="finder-grid" style={`--cols: ${COLS}`} data-grid>
+        {
+            tiles.map((index) => (
+                <button
+                    type="button"
+                    class="tile"
+                    data-tile={index}
+                    aria-label={`Row ${Math.floor(index / COLS) + 1}, column ${(index % COLS) + 1}`}
+                />
+            ))
+        }
+    </div>
+
+    <div class="finder-foot" aria-live="polite">
+        <p class="finder-status" data-status>Have a look around.</p>
+        <p class="finder-score" data-score hidden></p>
+        <div class="finder-actions" data-actions hidden>
+            <a class="finder-button finder-go" href="/" data-go>Yes, take me there</a>
+            <button type="button" class="finder-button" data-again>No, keep looking</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    const BEST_KEY = "syscall-404-best";
+
+    const root = document.querySelector<HTMLElement>("[data-finder]");
+
+    if (root) {
+        const cols = Number(root.dataset.cols);
+        const rows = Number(root.dataset.rows);
+        const maxDistance = cols - 1 + rows - 1;
+        const tiles = [...root.querySelectorAll<HTMLButtonElement>("[data-tile]")];
+        const triesEl = root.querySelector<HTMLElement>("[data-tries]")!;
+        const bestEl = root.querySelector<HTMLElement>("[data-best]")!;
+        const statusEl = root.querySelector<HTMLElement>("[data-status]")!;
+        const scoreEl = root.querySelector<HTMLElement>("[data-score]")!;
+        const actionsEl = root.querySelector<HTMLElement>("[data-actions]")!;
+        const goLink = root.querySelector<HTMLAnchorElement>("[data-go]")!;
+        const againButton = root.querySelector<HTMLButtonElement>("[data-again]")!;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const pages: { name: string; href: string }[] = JSON.parse(root.dataset.pages ?? "[]");
+
+        let target = 0;
+        let hiddenPage = { name: "", href: "/" };
+        let tries = 0;
+        let found = false;
+        let best = Number(localStorage.getItem(BEST_KEY)) || 0;
+
+        const distance = (a: number, b: number) =>
+            Math.abs((a % cols) - (b % cols)) +
+            Math.abs(Math.floor(a / cols) - Math.floor(b / cols));
+
+        const setStatus = (text: string) => {
+            statusEl.textContent = text;
+        };
+
+        const showBest = () => {
+            bestEl.textContent = best ? String(best) : "–";
+        };
+
+        const missMessage = () => {
+            if (tries === 1) return "Not there.";
+            if (tries === 2) return "Not there either. Those numbers aren't random.";
+            if (tries === 6) return "Look at where the small numbers are.";
+            if (tries >= 10) return "It's closer to the small numbers.";
+            return "Nope.";
+        };
+
+        const scoreMessage = () => {
+            if (tries === 1) return "First try. Lucky, or did you know?";
+            if (tries <= 3) return `Found in ${tries} tries. You've worked it out.`;
+            if (tries <= 5) return `Found in ${tries} tries. Bet you can do it in three.`;
+            return `Found in ${tries} tries.`;
+        };
+
+        const pickPage = () => {
+            const options = pages.filter((page) => page !== hiddenPage);
+            return options[Math.floor(Math.random() * options.length)] ?? pages[0];
+        };
+
+        const reset = () => {
+            target = Math.floor(Math.random() * tiles.length);
+            hiddenPage = pickPage();
+            tries = 0;
+            found = false;
+            triesEl.textContent = "0";
+            scoreEl.hidden = true;
+            actionsEl.hidden = true;
+            root.classList.remove("is-found");
+
+            for (const tile of tiles) {
+                tile.dataset.label ??= tile.getAttribute("aria-label") ?? "";
+                tile.setAttribute("aria-label", tile.dataset.label);
+                tile.textContent = "";
+                tile.className = "tile";
+                tile.disabled = false;
+                tile.style.removeProperty("--heat");
+                tile.style.removeProperty("--delay");
+            }
+
+            setStatus(best ? "Fine, it's hidden somewhere else now." : "Have a look around.");
+        };
+
+        const revealAll = () => {
+            for (const tile of tiles) {
+                const index = Number(tile.dataset.tile);
+                const d = distance(index, target);
+
+                tile.disabled = true;
+                if (index === target || tile.classList.contains("is-guess")) continue;
+
+                tile.textContent = String(d);
+                tile.style.setProperty("--heat", String(1 - d / maxDistance));
+                tile.style.setProperty("--delay", reduceMotion ? "0ms" : `${d * 45}ms`);
+                tile.classList.add("is-echo");
+            }
+        };
+
+        const guess = (tile: HTMLButtonElement) => {
+            if (found || tile.classList.contains("is-guess")) return;
+
+            const index = Number(tile.dataset.tile);
+            tries += 1;
+            triesEl.textContent = String(tries);
+            tile.classList.add("is-guess");
+
+            if (index === target) {
+                found = true;
+                tile.classList.add("is-target");
+                tile.setAttribute("aria-label", `The ${hiddenPage.name}`);
+                tile.innerHTML = '<span class="page-icon" aria-hidden="true"></span>';
+                root.classList.add("is-found");
+
+                if (!best || tries < best) {
+                    best = tries;
+                    localStorage.setItem(BEST_KEY, String(best));
+                    showBest();
+                }
+
+                setStatus(`Oh, you found the ${hiddenPage.name}. Is that what you were looking for?`);
+                scoreEl.textContent = scoreMessage();
+                scoreEl.hidden = false;
+                goLink.href = hiddenPage.href;
+                actionsEl.hidden = false;
+                revealAll();
+                return;
+            }
+
+            const d = distance(index, target);
+            tile.textContent = String(d);
+            tile.style.setProperty("--heat", String(1 - d / maxDistance));
+            tile.setAttribute("aria-label", `${tile.dataset.label}: ${d}`);
+            setStatus(missMessage());
+        };
+
+        root.addEventListener("click", (event) => {
+            const tile = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-tile]");
+            if (tile) guess(tile);
+        });
+
+        againButton.addEventListener("click", () => {
+            reset();
+            tiles[0].focus();
+        });
+
+        showBest();
+        reset();
+    }
+</script>
+
+<style>
+    .finder {
+        padding: clamp(1.25rem, 3vw, 2rem);
+
+        border: 1px solid var(--line-strong);
+        background: rgb(19 22 27 / 85%);
+    }
+
+    .finder-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+
+        margin-bottom: 1.25rem;
+    }
+
+    .finder-title {
+        margin: 0;
+
+        font-size: clamp(1.15rem, 2vw, 1.4rem);
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+    }
+
+    .finder-stats {
+        display: flex;
+        gap: 1.25rem;
+
+        margin: 0;
+
+        text-align: right;
+    }
+
+    .finder-stats dt {
+        color: var(--color-dim);
+
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .finder-stats dd {
+        margin: 0;
+
+        color: var(--color-white);
+
+        font-family: var(--font-mono);
+        font-size: 1.3rem;
+    }
+
+    .finder-grid {
+        display: grid;
+        grid-template-columns: repeat(var(--cols), 1fr);
+        gap: 4px;
+    }
+
+    .tile {
+        --heat: 0;
+
+        position: relative;
+
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+
+        padding: 0;
+
+        border: 1px solid var(--line);
+        background: var(--ink-1);
+        color: var(--color-white);
+
+        font-family: var(--font-mono);
+        font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+
+        cursor: pointer;
+
+        transition:
+            background-color var(--transition-fast),
+            border-color var(--transition-fast);
+    }
+
+    .tile:hover:not(:disabled),
+    .tile:focus-visible {
+        border-color: var(--color-purple-bright);
+        background: var(--ink-2);
+    }
+
+    .tile:focus-visible {
+        outline: 2px solid var(--color-purple-bright);
+        outline-offset: 1px;
+    }
+
+    .tile.is-guess {
+        border-color: rgb(164 141 255 / calc(20% + var(--heat) * 60%));
+        background: color-mix(in srgb, var(--color-purple) calc(var(--heat) * 55%), var(--ink-1));
+
+        cursor: default;
+
+        animation: tile-flip 320ms var(--ease-out);
+    }
+
+    .tile.is-echo {
+        background: color-mix(in srgb, var(--color-purple) calc(var(--heat) * 30%), var(--ink-0));
+        color: rgb(247 247 248 / calc(25% + var(--heat) * 45%));
+
+        cursor: default;
+
+        animation: tile-echo 500ms var(--ease-out) var(--delay) both;
+    }
+
+    .tile.is-target {
+        border-color: var(--color-purple-bright);
+        background: var(--color-purple);
+
+        animation: tile-found 600ms var(--ease-out);
+    }
+
+    .tile:disabled {
+        cursor: default;
+    }
+
+    .tile :global(.page-icon) {
+        position: relative;
+
+        width: 42%;
+        height: 54%;
+
+        background: var(--color-white);
+        clip-path: polygon(0 0, 68% 0, 100% 26%, 100% 100%, 0 100%);
+    }
+
+    .finder-foot {
+        min-height: 2.75rem;
+        margin-top: 1.25rem;
+    }
+
+    .finder-status {
+        margin: 0;
+
+        color: var(--color-muted);
+    }
+
+    .is-found .finder-status {
+        color: var(--color-white);
+
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .finder-score {
+        margin: 0.35rem 0 0;
+
+        color: var(--color-dim);
+
+        font-size: 0.9rem;
+    }
+
+    .finder-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        margin-top: 1rem;
+    }
+
+    .finder-actions[hidden],
+    .finder-score[hidden] {
+        display: none;
+    }
+
+    .finder-button {
+        padding: 0.6rem 1rem;
+
+        border: 1px solid var(--line-strong);
+        background: transparent;
+        color: var(--color-white);
+
+        font: inherit;
+        font-size: 0.9rem;
+        text-decoration: none;
+
+        cursor: pointer;
+
+        transition:
+            background-color var(--transition-fast),
+            border-color var(--transition-fast);
+    }
+
+    .finder-button:hover,
+    .finder-button:focus-visible {
+        border-color: var(--color-purple-bright);
+    }
+
+    .finder-go {
+        border-color: var(--color-purple);
+        background: var(--color-purple);
+    }
+
+    .finder-go:hover,
+    .finder-go:focus-visible {
+        background: var(--color-purple-bright);
+        color: var(--ink-0);
+    }
+
+    @keyframes tile-flip {
+        from {
+            transform: scale(0.85);
+        }
+    }
+
+    @keyframes tile-echo {
+        from {
+            opacity: 0;
+            transform: scale(0.7);
+        }
+    }
+
+    @keyframes tile-found {
+        0% {
+            transform: scale(0.6);
+        }
+
+        60% {
+            transform: scale(1.15);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tile,
+        .tile.is-guess,
+        .tile.is-echo,
+        .tile.is-target {
+            animation: none;
+        }
+    }
+</style>

@@ -10,10 +10,22 @@
     "build": "astro build",
     "test": "astro build && node --test tests/site.test.mjs",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "dev:cloudflare": "astro build && wrangler dev",
+    "deploy": "astro build && wrangler deploy",
+    "check:worker": "tsc -p worker",
+    "db:init": "wrangler d1 execute syscall-newsletter --remote --file=worker/schema.sql",
+    "db:init:local": "wrangler d1 execute syscall-newsletter --local --file=worker/schema.sql",
+    "export:subscribers": "node scripts/export-subscribers.mjs",
+    "export:subscribers:local": "node scripts/export-subscribers.mjs --local"
   },
   "dependencies": {
     "astro": "^7.3.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261001.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.146.0"
   },
   "allowScripts": {
     "esbuild": true
