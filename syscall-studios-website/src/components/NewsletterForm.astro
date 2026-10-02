@@ -58,9 +58,12 @@ const enabled = Boolean(endpoint && turnstileSiteKey);
     const PENDING_KEY = "syscall-newsletter-pending";
     const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    const TURNSTILE_ACTION = "signup";
+
     type Turnstile = {
         render: (container: HTMLElement, options: Record<string, unknown>) => string;
-        remove: (widgetId: string) => void;
+        execute: (widgetId: string) => void;
+        reset: (widgetId: string) => void;
     };
 
     declare global {
@@ -100,27 +103,48 @@ const enabled = Boolean(endpoint && turnstileSiteKey);
         const { endpoint = "", sitekey = "", source = "", fallback = "" } = form.dataset;
 
         let widgetId: string | undefined;
+        let pendingToken: { resolve: (token: string) => void; reject: (error: Error) => void } | undefined;
 
         const show = (text: string, state: "info" | "success" | "error" = "info") => {
             message.textContent = text;
             form.dataset.state = state;
         };
 
+        const settle = (outcome: string | Error) => {
+            const pending = pendingToken;
+            pendingToken = undefined;
+            if (!pending) return;
+            if (typeof outcome === "string") pending.resolve(outcome);
+            else pending.reject(outcome);
+        };
+
+        // Tokens are single-use, so each submit runs the widget once and resetToken()
+        // clears it after the request, ready for the next attempt.
         const getToken = async () => {
             const turnstile = await loadTurnstile();
 
-            return new Promise<string>((resolve, reject) => {
-                if (widgetId !== undefined) turnstile.remove(widgetId);
-
-                widgetId = turnstile.render(container, {
-                    sitekey,
-                    theme: "dark",
-                    appearance: "interaction-only",
-                    callback: resolve,
-                    "error-callback": () => reject(new Error("Turnstile error")),
-                    "timeout-callback": () => reject(new Error("Turnstile timeout"))
-                });
+            widgetId ??= turnstile.render(container, {
+                sitekey,
+                action: TURNSTILE_ACTION,
+                theme: "dark",
+                appearance: "interaction-only",
+                execution: "execute",
+                callback: (token: string) => settle(token),
+                "error-callback": () => settle(new Error("Turnstile error")),
+                "timeout-callback": () => settle(new Error("Turnstile timeout")),
+                "expired-callback": () => settle(new Error("Turnstile token expired"))
             });
+
+            const token = new Promise<string>((resolve, reject) => {
+                pendingToken = { resolve, reject };
+            });
+
+            turnstile.execute(widgetId);
+            return token;
+        };
+
+        const resetToken = () => {
+            if (widgetId !== undefined) window.turnstile?.reset(widgetId);
         };
 
         const pending = localStorage.getItem(PENDING_KEY);
@@ -177,6 +201,11 @@ const enabled = Boolean(endpoint && turnstileSiteKey);
                     return;
                 }
 
+                if (response.status === 403) {
+                    show("We couldn't check you're not a bot. Try again?", "error");
+                    return;
+                }
+
                 if (response.status === 429) {
                     show("That's a lot of tries. Give it a minute and try again.", "error");
                     return;
@@ -187,6 +216,7 @@ const enabled = Boolean(endpoint && turnstileSiteKey);
                 localStorage.setItem(PENDING_KEY, email);
                 show(`We couldn't sign you up just now. Try again later, or email ${fallback}.`, "error");
             } finally {
+                resetToken();
                 button.disabled = false;
                 button.textContent = "Sign up";
             }

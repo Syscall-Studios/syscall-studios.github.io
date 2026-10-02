@@ -9,7 +9,7 @@
   },
   "newsletter": {
     "endpoint": "/api/subscribe",
-    "turnstileSiteKey": ""
+    "turnstileSiteKey": "0x4AAAAAAFLjdMtHIoQOjzk-"
   },
   "socials": {
     "twitter": "https://x.com/SyscallStudios",
