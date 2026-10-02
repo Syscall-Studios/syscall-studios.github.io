@@ -42,5 +42,35 @@
 		// Sign-ups are only accepted when Turnstile says the form was on one of these hostnames.
 		// Never add localhost or 127.0.0.1 here.
 		"TURNSTILE_HOSTNAMES": "syscallstudios.com,www.syscallstudios.com"
+	},
+	// Branch previews get <branch>-syscall-studios-github-io.syscallstudios-cloudflare.workers.dev URLs,
+	// which Cloudflare serves with X-Robots-Tag: noindex.
+	"preview_urls": true,
+	// Previews don't inherit anything above. They write to a separate test database and only accept
+	// Cloudflare's always-pass Turnstile test key, which preview builds put in the form.
+	"previews": {
+		"d1_databases": [
+			{
+				"binding": "DB",
+				"database_name": "syscall-newsletter-preview",
+				"database_id": "f10bc7dd-d971-4624-9b37-180782d3c768"
+			}
+		],
+		"ratelimits": [
+			{
+				"name": "SIGNUP_LIMITER",
+				"namespace_id": "1002",
+				"simple": {
+					"limit": 5,
+					"period": 60
+				}
+			}
+		],
+		"vars": {
+			// Not a real secret: Cloudflare's published always-pass test key.
+			"TURNSTILE_SECRET": "1x0000000000000000000000000000000AA",
+			"TURNSTILE_HOSTNAMES": "example.com",
+			"TURNSTILE_ALLOW_TEST_KEYS": "true"
+		}
 	}
 }

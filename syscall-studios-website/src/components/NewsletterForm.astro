@@ -7,7 +7,14 @@ interface Props {
 }
 
 const { id, source } = Astro.props;
-const { endpoint, turnstileSiteKey } = site.newsletter;
+const { endpoint } = site.newsletter;
+
+// Preview builds are served from workers.dev, where the real site key is rejected, so they use
+// Cloudflare's always-pass test key. The preview Worker only accepts test-key results.
+const branch = process.env.WORKERS_CI_BRANCH;
+const isPreviewBuild = Boolean(branch) && branch !== "main";
+const turnstileSiteKey = isPreviewBuild ? "1x00000000000000000000AA" : site.newsletter.turnstileSiteKey;
+
 const enabled = Boolean(endpoint && turnstileSiteKey);
 ---
 
