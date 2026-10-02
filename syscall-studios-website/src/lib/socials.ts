@@ -3,6 +3,7 @@ import site from "../data/site.json";
 const labels: Record<string, string> = {
     twitter: "X",
     youtube: "YouTube",
+    instagram: "Instagram",
     tiktok: "TikTok",
     reddit: "Reddit",
     github: "GitHub",

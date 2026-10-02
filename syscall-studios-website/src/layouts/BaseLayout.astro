@@ -14,14 +14,14 @@ interface Props {
 
 const {
     title = site.studioName,
-    description = site.tagline,
-    image = "/brand/logo-full-horizontal-dark.svg",
+    description = site.description,
+    image = "/og.png",
     noIndex = false
 } = Astro.props;
 
 const pageTitle =
     title === site.studioName
-        ? title
+        ? `${title} | ${site.tagline}`
         : `${title} | ${site.studioName}`;
 
 const canonicalURL = new URL(
@@ -41,6 +41,10 @@ const imageURL = new URL(image, canonicalURL);
             name="viewport"
             content="width=device-width, initial-scale=1"
         />
+
+        <script is:inline>
+            document.documentElement.classList.add("js");
+        </script>
 
         <meta
             name="description"
@@ -72,6 +76,25 @@ const imageURL = new URL(image, canonicalURL);
         />
 
 
+        <!-- Fonts used above the fold -->
+
+        <link
+            rel="preload"
+            href="/fonts/Barlow-Black.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+
+        <link
+            rel="preload"
+            href="/fonts/ShareTechMono-Regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+
+
         <!-- Favicons -->
 
         <link
@@ -86,6 +109,9 @@ const imageURL = new URL(image, canonicalURL);
             type="image/x-icon"
         />
 
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+
 
         <!-- Page Title -->
 
@@ -94,66 +120,28 @@ const imageURL = new URL(image, canonicalURL);
 
         <!-- OpenGraph -->
 
-        <meta
-            property="og:type"
-            content="website"
-        />
-
-        <meta
-            property="og:title"
-            content={pageTitle}
-        />
-
-        <meta
-            property="og:description"
-            content={description}
-        />
-
-        <meta
-            property="og:url"
-            content={canonicalURL}
-        />
-
-        <meta
-            property="og:site_name"
-            content="Syscall Studios"
-        />
-
-        <meta
-            property="og:image"
-            content={imageURL}
-        />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:site_name" content="Syscall Studios" />
+        <meta property="og:image" content={imageURL} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Syscall Studios: Make systems worth understanding." />
 
 
         <!-- Twitter / Social Cards -->
 
-        <meta
-            name="twitter:card"
-            content="summary_large_image"
-        />
-
-        <meta
-            name="twitter:title"
-            content={pageTitle}
-        />
-
-        <meta
-            name="twitter:description"
-            content={description}
-        />
-
-        <meta
-            name="twitter:image"
-            content={imageURL}
-        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={imageURL} />
 
 
         <!-- Theme -->
 
-        <meta
-            name="theme-color"
-            content="#434b57"
-        />
+        <meta name="theme-color" content="#0d0f13" />
     </head>
 
     <body>
@@ -169,5 +157,26 @@ const imageURL = new URL(image, canonicalURL);
 
         <Footer />
 
+        <script>
+            const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+
+            if ("IntersectionObserver" in window) {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        for (const entry of entries) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("is-visible");
+                                observer.unobserve(entry.target);
+                            }
+                        }
+                    },
+                    { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+                );
+
+                targets.forEach((target) => observer.observe(target));
+            } else {
+                targets.forEach((target) => target.classList.add("is-visible"));
+            }
+        </script>
     </body>
 </html>

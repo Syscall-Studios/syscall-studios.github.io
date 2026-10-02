@@ -1,8 +1,9 @@
 name: Test
 
 on:
+  push:
+    branches: [main]
   pull_request:
-  workflow_call:
 
 permissions:
   contents: read
@@ -34,3 +35,6 @@ jobs:
 
       - name: Build and test
         run: npm test
+
+      - name: Type-check the Worker
+        run: npm run check:worker

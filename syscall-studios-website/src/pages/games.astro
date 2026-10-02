@@ -3,41 +3,84 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import GameCard from "../components/GameCard.astro";
 
 import games from "../data/games.json";
+
+const promises = [
+    "Systems you can actually learn.",
+    "Places that feel like people lived there.",
+    "Choices that stick around.",
+    "Details that are there for a reason.",
+    "Room to mess around and experiment.",
+    "A strong sense of place.",
+    "No treating you like you can't figure it out."
+];
+
+const nextSlot = String(games.length + 1).padStart(2, "0");
 ---
 
 <BaseLayout
     title="Games"
-    description="Games from Syscall Studios."
+    description="Games from Syscall Studios. Our first game is in development."
 >
-    <section class="games-hero">
+    <section class="page-hero">
         <div class="container">
 
-            <p class="eyebrow">
-                SYS::GAMES
-            </p>
+            <p class="eyebrow">Games</p>
 
-            <h1>
-                Things We're<br />
-                Building.
-            </h1>
+            <h1>Just the one, for now.</h1>
 
-            <p class="intro">
-                Games built around curiosity, experimentation,
-                and the little details that make worlds feel real.
+            <p class="lede">
+                We're working on our first game. We're not showing it off
+                until it's ready, but we write about how it's going in the
+                dev log.
             </p>
 
         </div>
     </section>
 
 
-    <section class="games-list">
-        <div class="container game-grid">
+    <section class="games section">
+        <div class="container game-list">
 
-            {
-                games.map((game) => (
-                    <GameCard {...game} />
-                ))
-            }
+            {games.map((game) => <GameCard {...game} />)}
+
+            <div class="empty-slot" data-reveal>
+                <span class="slot-id">Game {nextSlot}</span>
+                <p>
+                    Not yet. We'd like to finish the first one before
+                    starting another.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <section class="expect section">
+        <div class="container expect-grid">
+
+            <div>
+                <p class="eyebrow">Whatever we make next</p>
+                <h2 data-reveal>What we're aiming for.</h2>
+                <p class="muted expect-copy" data-reveal style="--reveal-index: 1">
+                    Our games might be different genres, styles and sizes.
+                    These are the things we want every one of them to have.
+                </p>
+            </div>
+
+            <ol class="expect-list">
+                {
+                    promises.map((promise, index) => (
+                        <li data-reveal style={`--reveal-index: ${index % 3}`}>
+                            <span class="expect-index">0{index + 1}</span>
+                            {promise}
+                        </li>
+                    ))
+                }
+                <li class="expect-last" data-reveal>
+                    <span class="expect-index">08</span>
+                    And ideally, something you haven't played before.
+                </li>
+            </ol>
 
         </div>
     </section>
@@ -45,33 +88,102 @@ import games from "../data/games.json";
 </BaseLayout>
 
 <style>
-    .games-hero {
-        padding-top: clamp(6rem, 12vw, 11rem);
-        padding-bottom: clamp(4rem, 8vw, 7rem);
-    }
-
-    .games-hero h1 {
-        margin-bottom: 2rem;
-
-        font-size: clamp(3rem, 8vw, 6.5rem);
-    }
-
-    .intro {
-        max-width: 650px;
-
-        margin-bottom: 0;
-
-        color: var(--color-muted);
-
-        font-size: clamp(1.1rem, 2vw, 1.35rem);
-    }
-
-    .games-list {
-        padding-block: clamp(4rem, 8vw, 8rem);
-    }
-
-    .game-grid {
+    .game-list {
         display: grid;
-        gap: 3rem;
+        gap: 1.5rem;
+    }
+
+    .empty-slot {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem 2rem;
+
+        padding: clamp(1.75rem, 4vw, 2.75rem);
+
+        border: 1px dashed var(--line-strong);
+        color: var(--color-dim);
+    }
+
+    .slot-id {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .empty-slot p {
+        margin: 0;
+
+        font-size: 1.1rem;
+    }
+
+    .expect-grid {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: clamp(3rem, 8vw, 8rem);
+        align-items: start;
+    }
+
+    .expect-grid > div {
+        position: sticky;
+        top: calc(var(--header-height) + 2rem);
+    }
+
+    .expect-copy {
+        max-width: 28rem;
+        margin-top: 2rem;
+
+        font-size: 1.15rem;
+    }
+
+    .expect-list {
+        margin: 0;
+        padding: 0;
+
+        border-top: 1px solid var(--line-strong);
+
+        list-style: none;
+    }
+
+    .expect-list li {
+        display: flex;
+        align-items: baseline;
+        gap: 1.5rem;
+
+        padding-block: 1.25rem;
+
+        border-bottom: 1px solid var(--line-strong);
+
+        font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+    }
+
+    .expect-index {
+        flex-shrink: 0;
+
+        color: var(--color-purple-bright);
+
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+    }
+
+    .expect-last {
+        color: var(--color-purple-bright);
+    }
+
+    @media (max-width: 820px) {
+        .expect-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .expect-grid > div {
+            position: static;
+        }
     }
 </style>

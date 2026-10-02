@@ -1,12 +1,20 @@
 {
   "studioName": "Syscall Studios",
-  "tagline": "Independent games, thoughtfully built.",
+  "tagline": "Make systems worth understanding.",
+  "description": "Syscall Studios is an independent game studio making systems-driven games about discovery, atmosphere, and the feeling of finally figuring out how something works.",
   "emails": {
-    "business": "Syscallstudios@gmail.com"
+    "hello": "hello@syscallstudios.com",
+    "press": "press@syscallstudios.com",
+    "support": "support@syscallstudios.com"
+  },
+  "newsletter": {
+    "endpoint": "/api/subscribe",
+    "turnstileSiteKey": ""
   },
   "socials": {
     "twitter": "https://x.com/SyscallStudios",
     "youtube": "https://www.youtube.com/@SyscallStudios",
+    "instagram": "https://www.instagram.com/syscallstudios/",
     "tiktok": "https://www.tiktok.com/@syscallstudios",
     "reddit": "https://www.reddit.com/r/SyscallStudios/",
     "github": "https://github.com/Syscall-Studios",

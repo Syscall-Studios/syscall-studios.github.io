@@ -2,8 +2,12 @@
 import site from "../data/site.json";
 import navItems from "../data/nav.json";
 import { socialLinks } from "../lib/socials";
+import NewsletterForm from "./NewsletterForm.astro";
+
+const newsletterEnabled = Boolean(site.newsletter.endpoint && site.newsletter.turnstileSiteKey);
 
 const siteLinks = [
+    { label: "Home", href: "/" },
     ...navItems,
     { label: "Careers", href: "/careers" },
     { label: "RSS", href: "/rss.xml" }
@@ -11,36 +15,36 @@ const siteLinks = [
 ---
 
 <footer class="site-footer">
-    <div class="container footer-inner">
+    <div class="container">
+
+        <div class="footer-statement">
+            <p class="statement">
+                Make understanding<br />
+                <span class="accent">feel like play.</span>
+            </p>
+
+            <img
+                class="footer-logo"
+                src="/brand/logo-full-box-light.svg"
+                alt="Syscall Studios"
+                width="234"
+                height="197"
+                loading="lazy"
+            />
+        </div>
+
+        {
+            newsletterEnabled && (
+                <div class="footer-newsletter">
+                    <NewsletterForm id="footer-newsletter" source="footer" />
+                </div>
+            )
+        }
 
         <div class="footer-groups">
 
-            <div class="footer-identity">
-
-                <a
-                    class="footer-brand"
-                    href="/"
-                    aria-label="Syscall Studios Home"
-                >
-                    <img
-                        src="/brand/logo-mark-light.svg"
-                        alt=""
-                    />
-
-                    <span>Syscall Studios</span>
-                </a>
-
-                <p class="footer-tagline">
-                    {site.tagline}
-                </p>
-
-            </div>
-
             <nav class="footer-group" aria-label="Footer navigation">
-
-                <p class="footer-heading">
-                    SITE
-                </p>
+                <p class="footer-heading">Site</p>
 
                 <ul class="footer-links">
                     {
@@ -51,16 +55,12 @@ const siteLinks = [
                         ))
                     }
                 </ul>
-
             </nav>
 
             {
                 socialLinks.length > 0 && (
                     <nav class="footer-group" aria-label="Social links">
-
-                        <p class="footer-heading">
-                            ELSEWHERE
-                        </p>
+                        <p class="footer-heading">Elsewhere</p>
 
                         <ul class="footer-links">
                             {
@@ -73,26 +73,42 @@ const siteLinks = [
                                             aria-label={`${social.label} (opens in a new tab)`}
                                         >
                                             {social.label}
+                                            <span aria-hidden="true">↗</span>
                                         </a>
                                     </li>
                                 ))
                             }
                         </ul>
-
                     </nav>
                 )
             }
 
+            <div class="footer-group">
+                <p class="footer-heading">Say hello</p>
+
+                <a
+                    class="footer-email"
+                    href={`mailto:${site.emails.hello}`}
+                >
+                    {site.emails.hello}
+                </a>
+
+                <p class="footer-note">
+                    A real person reads every email. Replies can take a few days.
+                </p>
+
+                <ul class="footer-emails">
+                    <li>Press: <a href={`mailto:${site.emails.press}`}>{site.emails.press}</a></li>
+                    <li>Support: <a href={`mailto:${site.emails.support}`}>{site.emails.support}</a></li>
+                </ul>
+            </div>
+
         </div>
 
         <div class="footer-meta">
-            <span>
-                © {new Date().getFullYear()} {site.studioName}
-            </span>
+            <span>© {new Date().getFullYear()} {site.studioName}</span>
 
-            <span class="separator" aria-hidden="true">|</span>
-
-            <span>Independent Game Studio</span>
+            <a href="#main-content" class="footer-top">Back to top ↑</a>
         </div>
 
     </div>
@@ -100,79 +116,78 @@ const siteLinks = [
 
 <style>
     .site-footer {
-        border-top: 1px solid rgb(216 216 216 / 12%);
+        position: relative;
+        overflow: hidden;
 
-        padding-block: clamp(2.5rem, 6vw, 4rem);
+        padding-top: clamp(4rem, 9vw, 8rem);
+        padding-bottom: 2rem;
+
+        border-top: 1px solid var(--line);
+        background:
+            radial-gradient(
+                ellipse 70% 60% at 50% 120%,
+                rgb(121 83 245 / 18%),
+                transparent 70%
+            ),
+            var(--ink-0);
     }
 
-    .footer-inner {
-        display: grid;
-        gap: clamp(2rem, 5vw, 3rem);
-    }
-
-    /*
-       Flex basis does the responsive work here: each group keeps a readable
-       minimum and drops to the next line on its own, so the footer reflows
-       at any width instead of at a handful of breakpoints.
-    */
-    .footer-groups {
+    .footer-statement {
         display: flex;
-        flex-wrap: wrap;
-        gap: clamp(2rem, 5vw, 4rem);
+        align-items: end;
+        justify-content: space-between;
+        gap: 3rem;
+
+        padding-bottom: clamp(3rem, 6vw, 5rem);
+
+        border-bottom: 1px solid var(--line);
     }
 
-    .footer-identity {
-        flex: 1 1 17rem;
-        min-width: 0;
+    .footer-newsletter {
+        padding-block: clamp(2.5rem, 5vw, 3.5rem);
+
+        border-bottom: 1px solid var(--line);
     }
 
-    .footer-group {
-        flex: 1 1 11rem;
-        min-width: 0;
+    .statement {
+        margin: 0;
+
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 7vw, 6rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 0.92;
     }
 
-    .footer-brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-
-        font-family: var(--font-brand);
-        font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .footer-brand img {
+    .footer-logo {
         flex-shrink: 0;
 
-        width: clamp(38px, 5vw, 50px);
+        width: clamp(110px, 14vw, 170px);
+        height: auto;
     }
 
-    .footer-tagline {
-        max-width: 24rem;
+    .footer-groups {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1.2fr;
+        gap: clamp(2rem, 5vw, 4rem);
 
-        margin-top: 1rem;
-        margin-bottom: 0;
-
-        color: var(--color-muted);
-
-        font-size: 0.95rem;
+        padding-block: clamp(2.5rem, 5vw, 4rem);
     }
 
     .footer-heading {
-        margin-bottom: 0.4rem;
+        margin-bottom: 1rem;
 
-        color: var(--color-accent);
+        color: var(--color-dim);
 
         font-family: var(--font-mono);
         font-size: 0.75rem;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
     }
 
     .footer-links {
         display: grid;
-        grid-template-columns:
-            repeat(auto-fill, minmax(7rem, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
         gap: 0 1.5rem;
 
         margin: 0;
@@ -184,15 +199,20 @@ const siteLinks = [
     .footer-links a {
         display: inline-flex;
         align-items: center;
+        gap: 0.4rem;
 
-        min-height: 2.5rem;
+        min-height: 2.4rem;
 
         color: var(--color-muted);
 
-        font-family: var(--font-mono);
-        font-size: 0.95rem;
+        font-size: 1.05rem;
 
         transition: color var(--transition-fast);
+    }
+
+    .footer-links a span {
+        color: var(--color-dim);
+        font-size: 0.85em;
     }
 
     .footer-links a:hover,
@@ -200,23 +220,103 @@ const siteLinks = [
         color: var(--color-white);
     }
 
+    .footer-email {
+        color: var(--color-white);
+
+        font-family: var(--font-mono);
+        font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+
+        word-break: break-word;
+
+        background:
+            linear-gradient(var(--color-purple-bright), var(--color-purple-bright))
+            0 100% / 100% 1px no-repeat;
+        transition: color var(--transition-fast);
+    }
+
+    .footer-email:hover,
+    .footer-email:focus-visible {
+        color: var(--color-purple-bright);
+    }
+
+    .footer-note {
+        margin-top: 0.85rem;
+        margin-bottom: 0;
+
+        color: var(--color-dim);
+
+        font-size: 0.95rem;
+    }
+
+    .footer-emails {
+        display: grid;
+        gap: 0.35rem;
+
+        margin: 1.25rem 0 0;
+        padding: 0;
+
+        color: var(--color-dim);
+
+        font-size: 0.95rem;
+        list-style: none;
+    }
+
+    .footer-emails a {
+        color: var(--color-muted);
+
+        transition: color var(--transition-fast);
+    }
+
+    .footer-emails a:hover,
+    .footer-emails a:focus-visible {
+        color: var(--color-purple-bright);
+    }
+
     .footer-meta {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 0.5rem 0.75rem;
+        justify-content: space-between;
+        gap: 0.75rem 2rem;
 
-        padding-top: clamp(1.5rem, 4vw, 2rem);
+        padding-top: 2rem;
 
-        border-top: 1px solid rgb(216 216 216 / 12%);
+        border-top: 1px solid var(--line);
 
-        color: var(--color-muted);
+        color: var(--color-dim);
 
         font-family: var(--font-mono);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
     }
 
-    .separator {
-        color: var(--color-accent);
+    .footer-top {
+        transition: color var(--transition-fast);
+    }
+
+    .footer-top:hover,
+    .footer-top:focus-visible {
+        color: var(--color-white);
+    }
+
+    @media (max-width: 860px) {
+        .footer-groups {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .footer-groups > :last-child {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .footer-statement {
+            flex-direction: column-reverse;
+            align-items: flex-start;
+        }
+
+        .footer-groups {
+            grid-template-columns: 1fr;
+        }
     }
 </style>

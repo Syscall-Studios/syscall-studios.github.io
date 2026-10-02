@@ -11,7 +11,7 @@ const staticRoutes = [
 ];
 
 export async function GET({ site: siteURL }) {
-    const origin = siteURL ?? new URL("https://syscall-studios.github.io");
+    const origin = siteURL ?? new URL("https://syscallstudios.com");
     const posts = await getPublishedPosts();
     const routes = [
         ...staticRoutes,

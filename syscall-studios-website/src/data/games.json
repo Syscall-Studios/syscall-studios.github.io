@@ -1,9 +1,9 @@
 [
   {
     "id": "project-01",
-    "title": "Unannounced Project",
+    "title": "Project 01",
     "status": "In Development",
-    "description": "Our first game is currently in development. We're keeping the details quiet for now.",
+    "description": "Our first game. It's in development, and we're keeping the details to ourselves until we have something worth showing.",
     "announced": false,
     "featured": true,
     "image": null,

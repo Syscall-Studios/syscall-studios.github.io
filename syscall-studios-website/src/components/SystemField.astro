@@ -1,0 +1,722 @@
+---
+/*
+   A small playable system. Nodes slowly charge over time; a click
+   fires one node, and a pulse that reaches a charged neighbour fires it
+   too. Each chain can fire a node at most once, so every chain ends.
+*/
+---
+
+<div class="field" data-field>
+    <canvas class="field-canvas" aria-hidden="true"></canvas>
+
+    <div class="field-hud" data-boot style="--boot: 7">
+        <div class="hud-stats" aria-hidden="true">
+            <span>Clicks <b data-stat="requests">0</b></span>
+            <span>Last chain <b data-stat="last">0</b></span>
+            <span>Best <b data-stat="best">0</b></span>
+        </div>
+
+        <p class="hud-hint" data-hint aria-live="polite">
+            Go on, click something.
+        </p>
+
+        <button class="hud-button" type="button" data-request>
+            Click for me
+        </button>
+    </div>
+
+    <p class="field-eureka" data-eureka aria-live="polite"></p>
+</div>
+
+<script>
+    type FieldNode = {
+        x: number;
+        y: number;
+        charge: number;
+        rate: number;
+        flash: number;
+        refractory: number;
+        lastCascade: number;
+        links: number[];
+        boot: number;
+    };
+
+    type Pulse = {
+        from: number;
+        to: number;
+        t: number;
+        duration: number;
+        cascade: number;
+        strength: number;
+    };
+
+    type Cascade = {
+        id: number;
+        user: boolean;
+        fired: number;
+        live: number;
+        limit: number;
+    };
+
+    type Marker = { x: number; y: number; age: number };
+
+    const PUSH = 0.3;
+    const REQUEST_PUSH = 1;
+    const PUSH_DECAY = 0.7;
+    const PULSE_SPEED = 230;
+    const REFRACTORY = 0.9;
+
+    const root = document.querySelector<HTMLElement>("[data-field]");
+
+    if (root) {
+        startField(root);
+    }
+
+    function startField(root: HTMLElement) {
+        const canvas = root.querySelector("canvas");
+        const ctx = canvas?.getContext("2d");
+
+        if (!canvas || !ctx) {
+            return;
+        }
+
+        const reducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        const statEls = {
+            requests: root.querySelector("[data-stat='requests']"),
+            last: root.querySelector("[data-stat='last']"),
+            best: root.querySelector("[data-stat='best']")
+        };
+        const hintEl = root.querySelector<HTMLElement>("[data-hint]");
+        const eurekaEl = root.querySelector<HTMLElement>("[data-eureka]");
+        const requestButton = root.querySelector<HTMLButtonElement>("[data-request]");
+
+        let width = 0;
+        let height = 0;
+        let gap = 60;
+
+        let nodes: FieldNode[] = [];
+        let edges: [number, number][] = [];
+        let pulses: Pulse[] = [];
+        let markers: Marker[] = [];
+        const cascades = new Map<number, Cascade>();
+
+        let nextCascade = 1;
+        let requests = 0;
+        let best = 0;
+        let eurekaShown = false;
+        let hover = -1;
+        let ambientTimer = 3;
+
+        const BOOT_SPREAD = 1.4;
+        const BOOT_FADE = 0.5;
+        let bootTime = reducedMotion ? Infinity : 0;
+
+        let visible = true;
+        let frame = 0;
+        let lastTime = 0;
+
+        const pad = (value: number) => String(value);
+
+        function build() {
+            const rect = canvas!.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            width = rect.width;
+            height = rect.height;
+
+            canvas!.width = Math.round(width * dpr);
+            canvas!.height = Math.round(height * dpr);
+            ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            gap = Math.max(52, Math.sqrt((width * height) / 230));
+
+            const originX = width * 0.7;
+            const originY = height * 0.45;
+            const farthest = Math.hypot(
+                Math.max(originX, width - originX),
+                Math.max(originY, height - originY)
+            );
+
+            nodes = [];
+            pulses = [];
+            markers = [];
+            cascades.clear();
+            hover = -1;
+
+            for (let y = gap * 0.5; y < height; y += gap) {
+                for (let x = gap * 0.5; x < width; x += gap) {
+                    const nx = x + (Math.random() - 0.5) * gap * 0.75;
+                    const ny = y + (Math.random() - 0.5) * gap * 0.75;
+
+                    nodes.push({
+                        x: nx,
+                        y: ny,
+                        boot:
+                            (Math.hypot(nx - originX, ny - originY) / farthest) *
+                                BOOT_SPREAD +
+                            Math.random() * 0.15,
+                        charge: Math.random() * 0.6,
+                        rate: 0.006 + Math.random() * 0.018,
+                        flash: 0,
+                        refractory: 0,
+                        lastCascade: 0,
+                        links: []
+                    });
+                }
+            }
+
+            const reach = gap * 1.5;
+
+            nodes.forEach((node, i) => {
+                const near: { j: number; d: number }[] = [];
+
+                nodes.forEach((other, j) => {
+                    if (i === j) return;
+                    const d = Math.hypot(other.x - node.x, other.y - node.y);
+                    if (d < reach) near.push({ j, d });
+                });
+
+                near.sort((a, b) => a.d - b.d);
+                node.links = near.slice(0, 4).map((entry) => entry.j);
+            });
+
+            // Links are made symmetric so pulses can travel both ways.
+            nodes.forEach((node, i) => {
+                for (const j of node.links) {
+                    if (!nodes[j].links.includes(i)) {
+                        nodes[j].links.push(i);
+                    }
+                }
+            });
+
+            edges = [];
+            nodes.forEach((node, i) => {
+                for (const j of node.links) {
+                    if (j > i) edges.push([i, j]);
+                }
+            });
+        }
+
+        function nearestNode(x: number, y: number, maxDistance = Infinity) {
+            let found = -1;
+            let bestDistance = maxDistance;
+
+            nodes.forEach((node, i) => {
+                const d = Math.hypot(node.x - x, node.y - y);
+                if (d < bestDistance) {
+                    bestDistance = d;
+                    found = i;
+                }
+            });
+
+            return found;
+        }
+
+        function fire(index: number, cascade: Cascade, strength = PUSH) {
+            const node = nodes[index];
+
+            if (
+                node.refractory > 0 ||
+                node.lastCascade === cascade.id ||
+                cascade.fired >= cascade.limit
+            ) {
+                return;
+            }
+
+            node.lastCascade = cascade.id;
+            node.refractory = REFRACTORY;
+            node.flash = 1;
+            node.charge = 0;
+            cascade.fired += 1;
+
+            for (const to of node.links) {
+                const target = nodes[to];
+                const distance = Math.hypot(target.x - node.x, target.y - node.y);
+
+                pulses.push({
+                    from: index,
+                    to,
+                    t: 0,
+                    duration: distance / PULSE_SPEED,
+                    cascade: cascade.id,
+                    strength
+                });
+                cascade.live += 1;
+            }
+
+            if (cascade.user && statEls.last) {
+                statEls.last.textContent = pad(cascade.fired);
+            }
+        }
+
+        function finish(cascade: Cascade) {
+            cascades.delete(cascade.id);
+
+            if (!cascade.user) return;
+
+            best = Math.max(best, cascade.fired);
+
+            if (statEls.last) statEls.last.textContent = pad(cascade.fired);
+            if (statEls.best) statEls.best.textContent = pad(best);
+
+            const eurekaThreshold = Math.max(24, Math.round(nodes.length * 0.3));
+
+            if (!eurekaShown && cascade.fired >= eurekaThreshold) {
+                eurekaShown = true;
+                showEureka();
+                if (hintEl) hintEl.textContent = "Yep, that's the trick.";
+            } else if (!eurekaShown && requests >= 6 && best < eurekaThreshold * 0.5) {
+                if (hintEl) hintEl.textContent = "Maybe give it a minute.";
+            }
+        }
+
+        function showEureka() {
+            if (!eurekaEl) return;
+
+            eurekaEl.textContent = "\u201CHoly shit. I figured that out.\u201D";
+            void eurekaEl.offsetWidth;
+            eurekaEl.classList.add("is-shown");
+
+            window.setTimeout(() => {
+                eurekaEl.classList.remove("is-shown");
+            }, 4200);
+        }
+
+        function request(x: number, y: number) {
+            const index = nearestNode(x, y);
+            if (index < 0) return;
+
+            requests += 1;
+            if (statEls.requests) statEls.requests.textContent = pad(requests);
+
+            if (requests === 1 && hintEl) {
+                hintEl.textContent = "Huh. Try somewhere else.";
+            }
+
+            const cascade: Cascade = {
+                id: nextCascade++,
+                user: true,
+                fired: 0,
+                live: 0,
+                limit: Infinity
+            };
+
+            cascades.set(cascade.id, cascade);
+            markers.push({ x: nodes[index].x, y: nodes[index].y, age: 0 });
+            fire(index, cascade, REQUEST_PUSH);
+
+            if (cascade.live === 0) finish(cascade);
+        }
+
+        function ambient() {
+            const primed = nodes
+                .map((node, i) => ({ node, i }))
+                .filter(({ node }) => node.charge > 0.92 && node.refractory <= 0);
+
+            if (primed.length === 0) return;
+
+            const pick = primed[Math.floor(Math.random() * primed.length)];
+            // Ambient chains stay small so they never drain the player's field.
+            const cascade: Cascade = {
+                id: nextCascade++,
+                user: false,
+                fired: 0,
+                live: 0,
+                limit: 4
+            };
+
+            cascades.set(cascade.id, cascade);
+            fire(pick.i, cascade);
+            if (cascade.live === 0) finish(cascade);
+        }
+
+        function step(dt: number) {
+            const previousBoot = bootTime;
+            bootTime += dt;
+
+            for (const node of nodes) {
+                node.flash = Math.max(0, node.flash - dt * 1.6);
+
+                if (node.boot > previousBoot && node.boot <= bootTime) {
+                    node.flash = 0.6;
+                }
+
+                if (node.refractory > 0) {
+                    node.refractory -= dt;
+                } else {
+                    node.charge = Math.min(1, node.charge + node.rate * dt);
+                }
+            }
+
+            for (let i = pulses.length - 1; i >= 0; i--) {
+                const pulse = pulses[i];
+                pulse.t += dt / pulse.duration;
+
+                if (pulse.t < 1) continue;
+
+                pulses.splice(i, 1);
+
+                const cascade = cascades.get(pulse.cascade);
+                if (!cascade) continue;
+
+                cascade.live -= 1;
+
+                const target = nodes[pulse.to];
+
+                if (target.lastCascade !== cascade.id && target.refractory <= 0) {
+                    target.charge += pulse.strength;
+
+                    if (target.charge >= 1) {
+                        fire(
+                            pulse.to,
+                            cascade,
+                            Math.max(PUSH, pulse.strength * PUSH_DECAY)
+                        );
+                    } else {
+                        target.flash = Math.max(target.flash, 0.3);
+                    }
+                }
+
+                if (cascade.live <= 0) finish(cascade);
+            }
+
+            for (let i = markers.length - 1; i >= 0; i--) {
+                markers[i].age += dt;
+                if (markers[i].age > 0.9) markers.splice(i, 1);
+            }
+
+            ambientTimer -= dt;
+            if (ambientTimer <= 0) {
+                ambientTimer = 4 + Math.random() * 5;
+                ambient();
+            }
+        }
+
+        function bracket(x: number, y: number, r: number) {
+            const arm = r * 0.4;
+
+            ctx!.beginPath();
+            ctx!.moveTo(x - r + arm, y - r);
+            ctx!.lineTo(x - r, y - r);
+            ctx!.lineTo(x - r, y + r);
+            ctx!.lineTo(x - r + arm, y + r);
+            ctx!.moveTo(x + r - arm, y - r);
+            ctx!.lineTo(x + r, y - r);
+            ctx!.lineTo(x + r, y + r);
+            ctx!.lineTo(x + r - arm, y + r);
+            ctx!.stroke();
+        }
+
+        function draw() {
+            const c = ctx!;
+            c.clearRect(0, 0, width, height);
+
+            const edgeFade = Math.min(1, bootTime / (BOOT_SPREAD + BOOT_FADE));
+
+            c.lineWidth = 1;
+            c.strokeStyle = `rgba(216, 216, 216, ${0.06 * edgeFade})`;
+            c.beginPath();
+            for (const [a, b] of edges) {
+                c.moveTo(nodes[a].x, nodes[a].y);
+                c.lineTo(nodes[b].x, nodes[b].y);
+            }
+            c.stroke();
+
+            if (hover >= 0) {
+                const h = nodes[hover];
+                c.strokeStyle = "rgba(164, 141, 255, 0.4)";
+                c.beginPath();
+                for (const j of h.links) {
+                    c.moveTo(h.x, h.y);
+                    c.lineTo(nodes[j].x, nodes[j].y);
+                }
+                c.stroke();
+
+                c.strokeStyle = "rgba(164, 141, 255, 0.85)";
+                bracket(h.x, h.y, 10);
+            }
+
+            c.lineCap = "round";
+            for (const pulse of pulses) {
+                const a = nodes[pulse.from];
+                const b = nodes[pulse.to];
+                const head = Math.min(pulse.t, 1);
+                const tail = Math.max(0, head - 0.45);
+
+                const hx = a.x + (b.x - a.x) * head;
+                const hy = a.y + (b.y - a.y) * head;
+
+                c.strokeStyle = "rgba(164, 141, 255, 0.55)";
+                c.lineWidth = 1.5;
+                c.beginPath();
+                c.moveTo(a.x + (b.x - a.x) * tail, a.y + (b.y - a.y) * tail);
+                c.lineTo(hx, hy);
+                c.stroke();
+
+                c.fillStyle = "#f7f7f8";
+                c.fillRect(hx - 1.5, hy - 1.5, 3, 3);
+            }
+            c.lineWidth = 1;
+
+            for (const node of nodes) {
+                const presence = Math.min(1, (bootTime - node.boot) / BOOT_FADE);
+                if (presence <= 0) continue;
+                c.globalAlpha = presence;
+
+                const charge = node.charge;
+                const size = 2 + charge * 2.6 + node.flash * 3;
+
+                if (node.flash > 0.02) {
+                    const glow = size * 5;
+                    c.fillStyle = `rgba(121, 83, 245, ${node.flash * 0.28})`;
+                    c.fillRect(node.x - glow / 2, node.y - glow / 2, glow, glow);
+                } else if (charge >= 0.999) {
+                    c.fillStyle = "rgba(121, 83, 245, 0.14)";
+                    c.fillRect(node.x - 6, node.y - 6, 12, 12);
+                }
+
+                if (charge >= 0.999) {
+                    c.fillStyle = "rgba(164, 141, 255, 0.95)";
+                } else {
+                    const r = Math.round(216 - 52 * charge);
+                    const g = Math.round(216 - 75 * charge);
+                    const alpha = 0.28 + charge * 0.55 + node.flash * 0.4;
+                    c.fillStyle = `rgba(${r}, ${g}, 255, ${Math.min(alpha, 1)})`;
+                }
+
+                c.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+            }
+            c.globalAlpha = 1;
+
+            for (const marker of markers) {
+                const progress = marker.age / 0.9;
+                c.strokeStyle = `rgba(247, 247, 248, ${1 - progress})`;
+                bracket(marker.x, marker.y, 8 + progress * 26);
+            }
+        }
+
+        function loop(time: number) {
+            const dt = Math.min((time - lastTime) / 1000, 0.05);
+            lastTime = time;
+
+            step(dt);
+            draw();
+
+            frame = visible ? requestAnimationFrame(loop) : 0;
+        }
+
+        function resume() {
+            if (frame || reducedMotion) return;
+            lastTime = performance.now();
+            frame = requestAnimationFrame(loop);
+        }
+
+        function localPoint(event: MouseEvent | PointerEvent) {
+            const rect = canvas!.getBoundingClientRect();
+            return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+        }
+
+        build();
+        draw();
+
+        if (reducedMotion) {
+            root.dataset.static = "true";
+            return;
+        }
+
+        const interactiveArea = root.closest<HTMLElement>("[data-field-area]") ?? root;
+
+        interactiveArea.addEventListener("click", (event) => {
+            if ((event.target as Element).closest("a, button")) return;
+            const point = localPoint(event);
+            request(point.x, point.y);
+        });
+
+        interactiveArea.addEventListener("pointermove", (event) => {
+            if (event.pointerType !== "mouse") return;
+            const point = localPoint(event);
+            hover = nearestNode(point.x, point.y, gap * 0.9);
+        });
+
+        interactiveArea.addEventListener("pointerleave", () => {
+            hover = -1;
+        });
+
+        requestButton?.addEventListener("click", () => {
+            const index = Math.floor(Math.random() * nodes.length);
+            request(nodes[index].x, nodes[index].y);
+        });
+
+        new IntersectionObserver(([entry]) => {
+            visible = entry.isIntersecting && !document.hidden;
+            if (visible) resume();
+        }).observe(root);
+
+        document.addEventListener("visibilitychange", () => {
+            visible = !document.hidden;
+            if (visible) resume();
+        });
+
+        let resizeTimer = 0;
+        let builtWidth = width;
+        let builtHeight = height;
+
+        new ResizeObserver(() => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => {
+                const rect = canvas.getBoundingClientRect();
+                if (
+                    Math.abs(rect.width - builtWidth) > 40 ||
+                    Math.abs(rect.height - builtHeight) > 140
+                ) {
+                    build();
+                    builtWidth = width;
+                    builtHeight = height;
+                    draw();
+                }
+            }, 180);
+        }).observe(canvas);
+
+        resume();
+    }
+</script>
+
+<style>
+    .field {
+        position: absolute;
+        inset: 0;
+    }
+
+    .field-canvas {
+        width: 100%;
+        height: 100%;
+
+        cursor: crosshair;
+    }
+
+    .field-hud {
+        position: absolute;
+        z-index: 2;
+        right: var(--page-padding);
+        bottom: clamp(1.25rem, 3vw, 2rem);
+
+        display: grid;
+        justify-items: end;
+        gap: 0.6rem;
+
+        color: var(--color-dim);
+
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-align: right;
+        text-transform: uppercase;
+    }
+
+    .hud-stats {
+        display: flex;
+        gap: 1.25rem;
+    }
+
+    .hud-stats b {
+        color: var(--color-white);
+        font-weight: 400;
+    }
+
+    .hud-hint {
+        margin: 0;
+
+        color: var(--color-muted);
+        text-transform: none;
+        letter-spacing: 0.02em;
+        font-size: 0.85rem;
+    }
+
+    .hud-button {
+        padding: 0.4rem 0.7rem;
+
+        border: 1px solid var(--line-strong);
+        background: rgb(13 15 19 / 60%);
+        color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+
+        transition:
+            color var(--transition-fast),
+            border-color var(--transition-fast);
+    }
+
+    .hud-button:hover,
+    .hud-button:focus-visible {
+        border-color: var(--color-purple-bright);
+        color: var(--color-white);
+    }
+
+    .field[data-static="true"] .field-hud {
+        display: none;
+    }
+
+    .field[data-static="true"] .field-canvas {
+        cursor: default;
+    }
+
+    .field-eureka {
+        position: absolute;
+        z-index: 3;
+        top: 50%;
+        left: 50%;
+
+        margin: 0;
+        padding: 1rem 1.5rem;
+
+        border: 1px solid var(--color-purple-bright);
+        background: rgb(13 15 19 / 88%);
+        color: var(--color-white);
+
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 3.5vw, 2.5rem);
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+
+        box-shadow: 0 0 80px rgb(121 83 245 / 45%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -40%) scale(0.96);
+
+        transition:
+            opacity 400ms var(--ease-out),
+            transform 600ms var(--ease-out);
+    }
+
+    .field-eureka:empty {
+        display: none;
+    }
+
+    .field-eureka.is-shown {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    @media (max-width: 760px) {
+        .field-hud {
+            left: var(--page-padding);
+            justify-items: start;
+            text-align: left;
+        }
+
+        .field-eureka {
+            white-space: normal;
+            width: calc(100% - var(--page-padding) * 2);
+            text-align: center;
+        }
+    }
+</style>

@@ -1,0 +1,308 @@
+---
+import site from "../data/site.json";
+
+interface Props {
+    id: string;
+    source: string;
+}
+
+const { id, source } = Astro.props;
+const { endpoint, turnstileSiteKey } = site.newsletter;
+const enabled = Boolean(endpoint && turnstileSiteKey);
+---
+
+{
+    enabled && (
+        <form
+            class="newsletter"
+            data-newsletter
+            data-endpoint={endpoint}
+            data-sitekey={turnstileSiteKey}
+            data-source={source}
+            data-fallback={site.emails.hello}
+            novalidate
+        >
+            <label class="newsletter-label" for={`${id}-email`}>Sign up for updates</label>
+
+            <div class="newsletter-row">
+                <input
+                    id={`${id}-email`}
+                    class="newsletter-input"
+                    type="email"
+                    name="email"
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                    maxlength="254"
+                    required
+                />
+                <button type="submit" class="newsletter-button" data-submit>Sign up</button>
+            </div>
+
+            <div class="newsletter-honeypot" aria-hidden="true">
+                <label>
+                    Leave this empty
+                    <input type="text" name="website" tabindex="-1" autocomplete="off" />
+                </label>
+            </div>
+
+            <div class="newsletter-turnstile" data-turnstile></div>
+
+            <p class="newsletter-message" data-message aria-live="polite">
+                News about our games and new dev log posts. No spam, and you can unsubscribe any time.
+            </p>
+        </form>
+    )
+}
+
+<script>
+    const PENDING_KEY = "syscall-newsletter-pending";
+    const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    type Turnstile = {
+        render: (container: HTMLElement, options: Record<string, unknown>) => string;
+        remove: (widgetId: string) => void;
+    };
+
+    declare global {
+        interface Window {
+            turnstile?: Turnstile;
+            onSyscallTurnstileLoad?: () => void;
+        }
+    }
+
+    let turnstileLoading: Promise<Turnstile> | null = null;
+
+    // The Turnstile script only loads once someone starts using a form,
+    // so ordinary page views never contact Cloudflare.
+    const loadTurnstile = () =>
+        (turnstileLoading ??= new Promise<Turnstile>((resolve, reject) => {
+            window.onSyscallTurnstileLoad = () => resolve(window.turnstile!);
+
+            const script = document.createElement("script");
+            script.src =
+                "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onSyscallTurnstileLoad";
+            script.async = true;
+            script.onerror = () => {
+                turnstileLoading = null;
+                script.remove();
+                reject(new Error("Turnstile failed to load"));
+            };
+
+            document.head.append(script);
+        }));
+
+    for (const form of document.querySelectorAll<HTMLFormElement>("[data-newsletter]")) {
+        const input = form.querySelector<HTMLInputElement>("input[type=email]")!;
+        const honeypot = form.querySelector<HTMLInputElement>("input[name=website]")!;
+        const button = form.querySelector<HTMLButtonElement>("[data-submit]")!;
+        const container = form.querySelector<HTMLElement>("[data-turnstile]")!;
+        const message = form.querySelector<HTMLElement>("[data-message]")!;
+        const { endpoint = "", sitekey = "", source = "", fallback = "" } = form.dataset;
+
+        let widgetId: string | undefined;
+
+        const show = (text: string, state: "info" | "success" | "error" = "info") => {
+            message.textContent = text;
+            form.dataset.state = state;
+        };
+
+        const getToken = async () => {
+            const turnstile = await loadTurnstile();
+
+            return new Promise<string>((resolve, reject) => {
+                if (widgetId !== undefined) turnstile.remove(widgetId);
+
+                widgetId = turnstile.render(container, {
+                    sitekey,
+                    theme: "dark",
+                    appearance: "interaction-only",
+                    callback: resolve,
+                    "error-callback": () => reject(new Error("Turnstile error")),
+                    "timeout-callback": () => reject(new Error("Turnstile timeout"))
+                });
+            });
+        };
+
+        const pending = localStorage.getItem(PENDING_KEY);
+        if (pending && !input.value) {
+            input.value = pending;
+            show("Looks like this didn't go through last time. Want to try again?");
+        }
+
+        form.addEventListener("focusin", () => loadTurnstile().catch(() => {}), { once: true });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const email = input.value.trim();
+
+            if (!EMAIL_PATTERN.test(email)) {
+                show("That doesn't look like an email address.", "error");
+                input.focus();
+                return;
+            }
+
+            if (honeypot.value) {
+                show("You're on the list. Thanks!", "success");
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = "Signing up…";
+
+            try {
+                let token: string;
+                try {
+                    token = await getToken();
+                } catch {
+                    show("We couldn't check you're not a bot. Try again?", "error");
+                    return;
+                }
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, token, source })
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem(PENDING_KEY);
+                    input.value = "";
+                    show("You're on the list. We'll be in touch when there's something worth sharing.", "success");
+                    return;
+                }
+
+                if (response.status === 400) {
+                    show("That doesn't look like an email address.", "error");
+                    return;
+                }
+
+                if (response.status === 429) {
+                    show("That's a lot of tries. Give it a minute and try again.", "error");
+                    return;
+                }
+
+                throw new Error(`Signup failed with ${response.status}`);
+            } catch {
+                localStorage.setItem(PENDING_KEY, email);
+                show(`We couldn't sign you up just now. Try again later, or email ${fallback}.`, "error");
+            } finally {
+                button.disabled = false;
+                button.textContent = "Sign up";
+            }
+        });
+    }
+</script>
+
+<style>
+    .newsletter {
+        display: grid;
+        gap: 0.75rem;
+
+        max-width: 34rem;
+    }
+
+    .newsletter-label {
+        font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+        font-weight: 800;
+        letter-spacing: -0.015em;
+    }
+
+    .newsletter-row {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .newsletter-input {
+        flex: 1;
+        min-width: 0;
+
+        padding: 0.85rem 1rem;
+
+        border: 1px solid var(--line-strong);
+        background: var(--ink-1);
+        color: var(--color-white);
+
+        font: inherit;
+
+        transition: border-color var(--transition-fast);
+    }
+
+    .newsletter-input::placeholder {
+        color: var(--color-dim);
+    }
+
+    .newsletter-input:focus {
+        border-color: var(--color-purple-bright);
+        outline: none;
+    }
+
+    .newsletter-button {
+        padding: 0.85rem 1.4rem;
+
+        border: 1px solid var(--color-purple);
+        background: var(--color-purple);
+        color: var(--color-white);
+
+        font: inherit;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition:
+            background-color var(--transition-fast),
+            color var(--transition-fast);
+    }
+
+    .newsletter-button:hover:not(:disabled),
+    .newsletter-button:focus-visible {
+        background: var(--color-purple-bright);
+        color: var(--ink-0);
+    }
+
+    .newsletter-button:focus-visible {
+        outline: 2px solid var(--color-purple-bright);
+        outline-offset: 2px;
+    }
+
+    .newsletter-button:disabled {
+        opacity: 0.7;
+
+        cursor: progress;
+    }
+
+    .newsletter-honeypot {
+        position: absolute;
+        left: -9999px;
+
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .newsletter-turnstile:empty {
+        display: none;
+    }
+
+    .newsletter-message {
+        margin: 0;
+
+        color: var(--color-dim);
+
+        font-size: 0.9rem;
+    }
+
+    .newsletter[data-state="success"] .newsletter-message {
+        color: var(--color-purple-bright);
+    }
+
+    .newsletter[data-state="error"] .newsletter-message {
+        color: #ff8f8f;
+    }
+
+    @media (max-width: 420px) {
+        .newsletter-row {
+            flex-direction: column;
+        }
+    }
+</style>

@@ -1,4 +1,6 @@
 ---
+import { formatDate } from "../lib/format-date";
+
 interface Props {
     id: string;
     title: string;
@@ -15,8 +17,6 @@ const {
     tags = []
 } = Astro.props;
 
-import { formatDate } from "../lib/format-date";
-
 const formattedDate = formatDate(pubDate);
 ---
 
@@ -24,28 +24,17 @@ const formattedDate = formatDate(pubDate);
     <a href={`/devlog/${id}/`} class="card-link">
 
         <div class="card-meta">
-            <span>{formattedDate}</span>
-
-            {
-                tags.length > 0 && (
-                    <>
-                        <span class="separator">|</span>
-                        <span>{tags[0]}</span>
-                    </>
-                )
-            }
+            <time class="card-date" datetime={pubDate.toISOString()}>{formattedDate}</time>
+            {tags.map((tag) => <span class="card-tag">{tag}</span>)}
         </div>
 
         <div class="card-content">
             <div>
-                <h2>{title}</h2>
-
+                <h3>{title}</h3>
                 <p>{description}</p>
             </div>
 
-            <span class="arrow" aria-hidden="true">
-                →
-            </span>
+            <span class="arrow" aria-hidden="true">→</span>
         </div>
 
     </a>
@@ -53,48 +42,81 @@ const formattedDate = formatDate(pubDate);
 
 <style>
     .devlog-card {
-        border-top: 1px solid rgb(67 75 87 / 20%);
+        border-top: 1px solid var(--line-strong);
     }
 
     .devlog-card:last-child {
-        border-bottom: 1px solid rgb(67 75 87 / 20%);
+        border-bottom: 1px solid var(--line-strong);
     }
 
     .card-link {
+        position: relative;
+
         display: block;
 
-        padding-block: 2.25rem;
+        padding: clamp(1.75rem, 4vw, 2.75rem) 0;
 
-        transition:
-            padding-left var(--transition-normal),
-            color var(--transition-fast);
+        transition: padding var(--transition-normal);
+    }
+
+    .card-link::before {
+        position: absolute;
+        inset: 0;
+
+        background: linear-gradient(
+            90deg,
+            rgb(121 83 245 / 12%),
+            transparent 70%
+        );
+
+        content: "";
+        opacity: 0;
+        transition: opacity var(--transition-normal);
     }
 
     .card-link:hover,
     .card-link:focus-visible {
-        padding-left: 1rem;
+        padding-inline: 1.25rem;
+    }
+
+    .card-link:hover::before,
+    .card-link:focus-visible::before {
+        opacity: 1;
     }
 
     .card-meta {
+        position: relative;
+
         display: flex;
-        gap: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
 
         margin-bottom: 1rem;
 
-        color: var(--color-purple);
+        color: var(--color-dim);
 
         font-family: var(--font-mono);
         font-size: 0.75rem;
-        letter-spacing: 0.08em;
-
+        letter-spacing: 0.1em;
         text-transform: uppercase;
     }
 
-    .separator {
-        color: var(--color-gray);
+    .card-date {
+        color: var(--color-purple-bright);
+    }
+
+    .card-tag + .card-tag::before,
+    .card-date + .card-tag::before {
+        margin-right: 1rem;
+
+        color: var(--color-dim);
+
+        content: "·";
     }
 
     .card-content {
+        position: relative;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -102,24 +124,26 @@ const formattedDate = formatDate(pubDate);
         gap: 3rem;
     }
 
-    h2 {
+    h3 {
         margin-bottom: 0.75rem;
 
-        font-size: clamp(1.75rem, 3.25vw, 2.75rem);
+        font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
     }
 
     p {
-        max-width: 650px;
+        max-width: 42rem;
 
         margin-bottom: 0;
 
-        color: rgb(67 75 87 / 75%);
+        color: var(--color-muted);
     }
 
     .arrow {
         flex-shrink: 0;
 
-        color: var(--color-purple);
+        color: var(--color-purple-bright);
 
         font-family: var(--font-mono);
         font-size: 2rem;
@@ -133,6 +157,10 @@ const formattedDate = formatDate(pubDate);
     }
 
     @media (max-width: 650px) {
+        .card-content {
+            gap: 1.5rem;
+        }
+
         .arrow {
             font-size: 1.5rem;
         }

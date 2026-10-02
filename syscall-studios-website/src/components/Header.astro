@@ -4,7 +4,7 @@ import navItems from "../data/nav.json";
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="site-header">
+<header class="site-header" data-scrolled="false">
     <div class="container header-inner">
         <a
             class="brand"
@@ -15,6 +15,8 @@ const currentPath = Astro.url.pathname;
                 src="/brand/logo-full-horizontal-light.svg"
                 alt=""
                 class="brand-logo"
+                width="1037"
+                height="90"
             />
         </a>
 
@@ -46,7 +48,7 @@ const currentPath = Astro.url.pathname;
                             class="nav-link"
                             aria-current={isCurrent ? "page" : undefined}
                         >
-                            {item.label}
+                            <span class="nav-text">{item.label}</span>
                         </a>
                     );
                 })
@@ -56,12 +58,19 @@ const currentPath = Astro.url.pathname;
 </header>
 
 <script>
-    document.documentElement.classList.add("js");
-
-    const header = document.querySelector(".site-header");
+    const header = document.querySelector<HTMLElement>(".site-header");
     const toggle = header?.querySelector(".menu-toggle");
     const nav = header?.querySelector(".nav");
     const label = header?.querySelector(".menu-label");
+
+    if (header) {
+        const onScroll = () => {
+            header.dataset.scrolled = String(window.scrollY > 12);
+        };
+
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+    }
 
     if (
         toggle instanceof HTMLButtonElement &&
@@ -82,7 +91,7 @@ const currentPath = Astro.url.pathname;
         nav.addEventListener("click", () => setOpen(false));
 
         document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") {
+            if (event.key === "Escape" && nav.dataset.open === "true") {
                 setOpen(false);
                 toggle.focus();
             }
@@ -96,14 +105,23 @@ const currentPath = Astro.url.pathname;
         top: 0;
         z-index: 100;
 
-        background: rgb(67 75 87 / 92%);
-        border-bottom: 1px solid
-            rgb(216 216 216 / 12%);
-        backdrop-filter: blur(16px);
+        border-bottom: 1px solid transparent;
+
+        view-transition-name: site-header;
+
+        transition:
+            background var(--transition-normal),
+            border-color var(--transition-normal);
+    }
+
+    .site-header[data-scrolled="true"] {
+        background: rgb(13 15 19 / 82%);
+        border-bottom-color: var(--line);
+        backdrop-filter: blur(14px) saturate(1.3);
     }
 
     .header-inner {
-        min-height: 88px;
+        min-height: var(--header-height);
 
         display: flex;
         align-items: center;
@@ -115,17 +133,23 @@ const currentPath = Astro.url.pathname;
     .brand {
         display: flex;
         align-items: center;
+
+        transition: opacity var(--transition-fast);
+    }
+
+    .brand:hover {
+        opacity: 0.8;
     }
 
     .brand-logo {
-        width: 230px;
+        width: 210px;
         height: auto;
     }
 
     .nav {
         display: flex;
         align-items: center;
-        gap: clamp(1rem, 3vw, 2.25rem);
+        gap: clamp(1.25rem, 3vw, 2.5rem);
     }
 
     .menu-toggle {
@@ -133,37 +157,37 @@ const currentPath = Astro.url.pathname;
     }
 
     .nav-link {
-        position: relative;
-
-        font-family: var(--font-mono);
-        font-size: 1.05rem;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45rem;
 
         color: var(--color-muted);
+
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+        letter-spacing: 0.04em;
 
         transition: color var(--transition-fast);
     }
 
-    .nav-link::before,
-    .nav-link::after {
+    .nav-text::before,
+    .nav-text::after {
+        color: var(--color-purple-bright);
+
         opacity: 0;
-
-        color: var(--color-accent);
-
         transition:
             opacity var(--transition-fast),
-            transform var(--transition-fast);
+            margin var(--transition-fast);
     }
 
-    .nav-link::before {
+    .nav-text::before {
         content: "[";
-        margin-right: 0.25rem;
-        transform: translateX(4px);
+        margin-right: 0;
     }
 
-    .nav-link::after {
+    .nav-text::after {
         content: "]";
-        margin-left: 0.25rem;
-        transform: translateX(-4px);
+        margin-left: 0;
     }
 
     .nav-link:hover,
@@ -172,51 +196,66 @@ const currentPath = Astro.url.pathname;
         color: var(--color-white);
     }
 
-    .nav-link:hover::before,
-    .nav-link:hover::after,
-    .nav-link:focus-visible::before,
-    .nav-link:focus-visible::after,
-    .nav-link[aria-current="page"]::before,
-    .nav-link[aria-current="page"]::after {
+    .nav-link[aria-current="page"] .nav-text::before,
+    .nav-link[aria-current="page"] .nav-text::after {
         opacity: 1;
-        transform: translateX(0);
     }
 
-    @media (max-width: 700px) {
+    .nav-link[aria-current="page"] .nav-text::before {
+        margin-right: 0.3rem;
+    }
+
+    .nav-link[aria-current="page"] .nav-text::after {
+        margin-left: 0.3rem;
+    }
+
+    @media (max-width: 760px) {
+        .site-header {
+            background: rgb(13 15 19 / 88%);
+            backdrop-filter: blur(14px);
+        }
+
         .header-inner {
             position: relative;
-            min-height: 72px;
+            min-height: 68px;
         }
 
         .brand-logo {
-            width: 176px;
+            width: 170px;
         }
 
         .nav {
             position: absolute;
             top: calc(100% + 1px);
-            right: var(--page-padding);
-            left: var(--page-padding);
+            right: 0;
+            left: 0;
 
             display: grid;
             gap: 0;
 
-            padding: 0.65rem;
+            padding: 0.5rem;
 
-            background: var(--color-slate);
-            border: 1px solid rgb(216 216 216 / 18%);
-            box-shadow: 0 1.5rem 4rem rgb(24 28 34 / 30%);
+            background: var(--ink-1);
+            border: 1px solid var(--line-strong);
+            box-shadow: 0 2rem 4rem rgb(0 0 0 / 50%);
         }
 
         .nav-link {
-            min-height: 52px;
+            min-height: 56px;
 
             display: flex;
             align-items: center;
+            gap: 1rem;
 
             padding-inline: 0.75rem;
 
-            font-size: 1.1rem;
+            border-bottom: 1px solid var(--line);
+
+            font-size: 1.15rem;
+        }
+
+        .nav-link:last-child {
+            border-bottom: 0;
         }
 
         :global(html.js) .menu-toggle {
@@ -224,31 +263,57 @@ const currentPath = Astro.url.pathname;
             align-items: center;
 
             min-height: 44px;
-            padding: 0.55rem 0.75rem;
+            padding: 0.55rem 0.85rem;
 
-            border: 1px solid rgb(216 216 216 / 35%);
+            border: 1px solid var(--line-strong);
             background: transparent;
             color: var(--color-white);
 
             font-family: var(--font-mono);
-            font-size: 0.95rem;
-            letter-spacing: 0.06em;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             cursor: pointer;
         }
 
         .menu-label::before {
             content: "[ ";
-            color: var(--color-accent);
+            color: var(--color-purple-bright);
         }
 
         .menu-label::after {
             content: " ]";
-            color: var(--color-accent);
+            color: var(--color-purple-bright);
         }
 
         :global(html.js) .nav[data-open="false"] {
             display: none;
+        }
+
+        .nav[data-open="true"] {
+            animation: menu-in 260ms var(--ease-out) both;
+        }
+
+        .nav[data-open="true"] .nav-link {
+            animation: menu-item-in 360ms var(--ease-out) both;
+        }
+
+        .nav[data-open="true"] .nav-link:nth-child(2) { animation-delay: 40ms; }
+        .nav[data-open="true"] .nav-link:nth-child(3) { animation-delay: 80ms; }
+        .nav[data-open="true"] .nav-link:nth-child(4) { animation-delay: 120ms; }
+    }
+
+    @keyframes menu-in {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes menu-item-in {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
         }
     }
 
