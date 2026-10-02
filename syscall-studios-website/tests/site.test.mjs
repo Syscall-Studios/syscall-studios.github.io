@@ -69,7 +69,8 @@ test("core pages and feeds are generated", async () => {
         "devlog/index.html",
         "robots.txt",
         "sitemap.xml",
-        "rss.xml"
+        "rss.xml",
+        "llms.txt"
     ];
 
     await Promise.all(
@@ -110,8 +111,65 @@ test("careers page states that no roles are open", async () => {
 test("footer links to careers and the feed", async () => {
     const html = await readPage("index.html");
 
-    assert.match(html, /href="\/careers"/);
+    assert.match(html, /href="\/careers\/"/);
     assert.match(html, /href="\/rss\.xml"/);
+});
+
+const readJsonLd = (html) => {
+    const json = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
+    assert.ok(json, "page is missing JSON-LD");
+    return JSON.parse(json)["@graph"];
+};
+
+test("internal links point at canonical trailing-slash URLs", async () => {
+    for (const path of ["index.html", "about/index.html", "devlog/hello-world/index.html", "404.html"]) {
+        const html = await readPage(path);
+        assert.doesNotMatch(
+            html,
+            /href="\/(games|devlog|about|contact|careers)"/,
+            `${path} links to a URL that redirects`
+        );
+    }
+});
+
+test("pages describe the studio with structured data", async () => {
+    const graph = readJsonLd(await readPage("index.html"));
+    const types = graph.map((node) => node["@type"]);
+
+    assert.ok(types.includes("Organization"));
+    assert.ok(types.includes("WebSite"));
+    assert.ok(graph.find((node) => node["@type"] === "Organization").sameAs.length > 0);
+});
+
+test("dev log posts are marked up as articles", async () => {
+    const [id] = await expectedPostIds();
+    const html = await readPage(`devlog/${id}/index.html`);
+    const graph = readJsonLd(html);
+    const post = graph.find((node) => node["@type"] === "BlogPosting");
+
+    assert.match(html, /property="og:type" content="article"/);
+    assert.match(html, /property="article:published_time"/);
+    assert.ok(post?.headline && post.datePublished);
+    assert.equal(
+        graph.find((node) => node.breadcrumb)?.breadcrumb.itemListElement.length,
+        3
+    );
+});
+
+test("noindex pages skip the canonical link and structured data", async () => {
+    const html = await readPage("404.html");
+
+    assert.doesNotMatch(html, /rel="canonical"/);
+    assert.doesNotMatch(html, /application\/ld\+json/);
+});
+
+test("sitemap dates posts and robots.txt points at it", async () => {
+    const xml = await readPage("sitemap.xml");
+    const robots = await readPage("robots.txt");
+
+    assert.match(xml, /<lastmod>\d{4}-\d{2}-\d{2}T/);
+    assert.doesNotMatch(xml, /404/);
+    assert.match(robots, /Sitemap: https:\/\/syscallstudios\.com\/sitemap\.xml/);
 });
 
 test("pages share a PNG social card and brand icons", async () => {

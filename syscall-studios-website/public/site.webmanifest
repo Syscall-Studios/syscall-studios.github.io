@@ -1,6 +1,11 @@
 {
+  "id": "/",
   "name": "Syscall Studios",
   "short_name": "Syscall",
+  "description": "Independent game studio making systems-driven games about discovery and figuring out how things work.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }

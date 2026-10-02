@@ -33,7 +33,7 @@ const fileNumber = id.replace(/\D/g, "").padStart(2, "0");
     <div class="game-visual">
         {
             image ? (
-                <img src={image} alt="" />
+                <img src={image} alt={`${title} key art`} loading="lazy" decoding="async" />
             ) : (
                 <div class="visual-placeholder" aria-hidden="true">
                     <span class="visual-number">{fileNumber}</span>
@@ -103,7 +103,7 @@ const fileNumber = id.replace(/\D/g, "").padStart(2, "0");
 
         {
             !announced && (
-                <a href="/devlog" class="text-link">
+                <a href="/devlog/" class="text-link">
                     Updates are in the dev log →
                 </a>
             )

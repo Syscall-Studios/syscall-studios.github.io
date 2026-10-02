@@ -38,9 +38,7 @@ const currentPath = Astro.url.pathname;
         >
             {
                 navItems.map((item) => {
-                    const isCurrent =
-                        currentPath === item.href ||
-                        currentPath.startsWith(`${item.href}/`);
+                    const isCurrent = `${currentPath}/`.startsWith(item.href);
 
                     return (
                         <a

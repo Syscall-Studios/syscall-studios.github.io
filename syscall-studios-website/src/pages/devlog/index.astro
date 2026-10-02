@@ -2,13 +2,30 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import DevlogCard from "../../components/DevlogCard.astro";
 import { getPublishedPosts } from "../../lib/devlog";
+import { blogPosting, organizationId } from "../../lib/seo";
+import site from "../../data/site.json";
 
 const posts = await getPublishedPosts();
+
+const origin = Astro.site ?? Astro.url;
+const blogURL = new URL("/devlog/", origin).toString();
+
+const blog = {
+    "@type": "Blog",
+    "@id": `${blogURL}#blog`,
+    url: blogURL,
+    name: `${site.studioName} Dev Log`,
+    inLanguage: "en",
+    publisher: { "@id": organizationId(origin) },
+    blogPost: posts.map((post) => blogPosting(origin, post))
+};
 ---
 
 <BaseLayout
     title="Dev Log"
-    description="Development notes, experiments, mistakes and discoveries from Syscall Studios."
+    description="Game development notes, experiments, mistakes and discoveries from Syscall Studios, an independent studio building its first game."
+    pageType="CollectionPage"
+    structuredData={[blog]}
 >
     <section class="page-hero">
         <div class="container hero-grid">

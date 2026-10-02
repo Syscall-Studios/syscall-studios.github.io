@@ -69,7 +69,7 @@ In the Cloudflare dashboard, go to **Workers & Pages → Create → Import a
 repository**, connect GitHub, and pick this repository. This works with
 private repositories.
 
-- Project name: `syscall-studios` (must match `name` in `wrangler.jsonc`)
+- Project name: `syscall-studios-github-io` (must match `name` in `wrangler.jsonc`)
 - Production branch: `main`
 - Root directory: `syscall-studios-website`
 - Build command: `npm test`
@@ -86,7 +86,9 @@ Go to **Turnstile → Add widget**.
 - Widget mode: **Managed**
 
 Add the **secret key** to the Worker under **Settings → Variables and
-Secrets** as a secret named `TURNSTILE_SECRET`. Never commit it.
+Secrets** as a secret named `TURNSTILE_SECRET`. Set the type to **Secret**,
+not Text: plain-text variables are printed in build logs and removed by the
+next deploy. Never commit it.
 
 Put the **site key** in `src/data/site.json` under `newsletter.turnstileSiteKey`
 and push. The site key is public by design. The sign-up form appears in the

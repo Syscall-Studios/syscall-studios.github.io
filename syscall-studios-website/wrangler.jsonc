@@ -1,8 +1,15 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "syscall-studios",
+	// Must match the Worker's name in the Cloudflare dashboard.
+	"name": "syscall-studios-github-io",
 	"main": "worker/index.ts",
 	"compatibility_date": "2026-09-01",
+	"routes": [
+		{
+			"pattern": "syscallstudios.com",
+			"custom_domain": true
+		}
+	],
 	// Pages are served straight from dist/ without running any code, so page views
 	// never count toward the Worker's daily request limit. Only /api/* runs the Worker.
 	"assets": {

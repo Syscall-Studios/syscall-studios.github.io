@@ -9,7 +9,7 @@ const newsletterEnabled = Boolean(site.newsletter.endpoint && site.newsletter.tu
 const siteLinks = [
     { label: "Home", href: "/" },
     ...navItems,
-    { label: "Careers", href: "/careers" },
+    { label: "Careers", href: "/careers/" },
     { label: "RSS", href: "/rss.xml" }
 ];
 ---
@@ -69,7 +69,7 @@ const siteLinks = [
                                         <a
                                             href={social.url}
                                             target="_blank"
-                                            rel="noopener noreferrer"
+                                            rel="me noopener noreferrer"
                                             aria-label={`${social.label} (opens in a new tab)`}
                                         >
                                             {social.label}

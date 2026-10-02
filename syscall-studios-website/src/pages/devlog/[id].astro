@@ -7,6 +7,7 @@ import {
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { formatDate } from "../../lib/format-date";
 import { getPublishedPosts } from "../../lib/devlog";
+import { blogPosting } from "../../lib/seo";
 
 
 export async function getStaticPaths() {
@@ -39,18 +40,32 @@ const newer = position > 0 ? allPosts[position - 1] : null;
 const older = position < allPosts.length - 1 ? allPosts[position + 1] : null;
 
 const sections = headings.filter((heading) => heading.depth === 2);
+
+const origin = Astro.site ?? Astro.url;
 ---
 
 <BaseLayout
     title={post.data.title}
     description={post.data.description}
+    image={post.data.cover}
+    imageAlt={post.data.cover ? post.data.title : undefined}
+    breadcrumbs={[
+        { name: "Dev Log", path: "/devlog/" },
+        { name: post.data.title, path: `/devlog/${post.id}/` }
+    ]}
+    article={{
+        publishedTime: post.data.pubDate,
+        modifiedTime: post.data.updatedDate,
+        tags: post.data.tags
+    }}
+    structuredData={[blogPosting(origin, post, post.body)]}
 >
     <article>
 
         <header class="article-header page-hero">
             <div class="article-container">
 
-                <a href="/devlog" class="back">← All posts</a>
+                <a href="/devlog/" class="back">← All posts</a>
 
                 <p class="eyebrow">
                     <time datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
