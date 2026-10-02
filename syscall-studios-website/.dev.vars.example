@@ -1,3 +1,7 @@
-# Copy to .dev.vars for local testing. This is Cloudflare's always-pass Turnstile
+# Copy to .dev.vars for local testing only. This is Cloudflare's always-pass Turnstile
 # test secret. The matching test site key is 1x00000000000000000000AA.
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+
+# Test keys report the hostname as example.com and don't return an action.
+TURNSTILE_HOSTNAMES=example.com
+TURNSTILE_ALLOW_TEST_KEYS=true
