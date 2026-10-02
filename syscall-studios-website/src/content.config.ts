@@ -10,6 +10,8 @@ const devlog = defineCollection({
 
     schema: z.object({
         title: z.string(),
+        // Used for the <title> tag and social cards; the page itself shows `title`.
+        seoTitle: z.string().optional(),
         description: z.string(),
 
         pubDate: z.coerce.date(),

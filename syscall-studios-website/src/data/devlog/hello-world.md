@@ -1,10 +1,12 @@
 ---
 title: "Hello, World"
-description: "Welcome to Syscall Studios. We're building our first game, our studio, and a place to document everything we learn along the way."
+seoTitle: "Hello, World: Meet Our New Indie Game Studio"
+description: "Meet Syscall Studios, a new indie game studio building its first game. Why we're starting a dev log, and what's with the [0x80] in our logo."
 pubDate: 2026-09-04T12:00:00Z
 tags:
   - Studio
   - Development
+  - Indie Games
 featured: true
 draft: false
 ---
@@ -15,7 +17,7 @@ We're **Syscall Studios**, a small independent game studio currently building ou
 
 And, at least for now, that's about as much as we're going to tell you about the game itself.
 
-It's called Project 01 around here, it's in active development, and it will stay `[ CLASSIFIED ]` until we think there's something genuinely worth showing.
+It's called [Project 01](/games/) around here, it's in active development, and it will stay `[ CLASSIFIED ]` until we think there's something genuinely worth showing.
 
 But the game isn't the only thing we're building.
 

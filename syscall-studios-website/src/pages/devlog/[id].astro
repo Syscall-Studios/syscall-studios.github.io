@@ -45,7 +45,7 @@ const origin = Astro.site ?? Astro.url;
 ---
 
 <BaseLayout
-    title={post.data.title}
+    title={post.data.seoTitle ?? post.data.title}
     description={post.data.description}
     image={post.data.cover}
     imageAlt={post.data.cover ? post.data.title : undefined}
